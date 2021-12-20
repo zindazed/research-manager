@@ -1,0 +1,390 @@
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap4/css/bootstrap.min.css' %}">
+    <title>{{task.name}}</title>
+</head>
+
+<body>
+    {% include "Accounts/nav-in.html" %}
+    <h6>
+        <a href="{% url 'idea' %}">ideas</a>/
+        <a href="{% url 'idea_details' idea.id %}">{{idea.name}}</a>/
+        <a href="{% url 'task_details' task.id %}">{{task.name}}</a></h6>
+    <h5 class="text-danger text-center">{{request.session.milestone}}</h5>
+    {% if task.status == "Given Up"%}
+    <h3 class="text-center">{{task.member.user}} gave up in this task</h3>{% endif %} {% if task.status != "Done" and task.status != "Being Done" or task.member.user == request.user %}
+    <form class="form-control-sm bg-purple container text-center" action="{% url 'change_status' task.id %}" method="POST">
+        {% csrf_token %}
+        <select name="status" required>
+            {%if task.status == "Done" and task.member.user == request.user %}
+                <option value="Being Redone">Redo Task</option>
+                <option value="Given Up">Give Up</option>
+            {%endif%}
+            {% if task.status == "Not Done" or task.status == "Given Up"%}
+                <option value="Being Done">Do Task</option>
+            {%elif task.status == "Being Done" %}
+                <option value="Done">Finished Task</option>
+                <option value="Given Up">Give Up</option>
+            {% endif %}
+        </select> 
+        
+        {% if task.status == "Not Done" or task.status == "Given Up" or task.status == "Done" and task.member.user == request.user %}
+        <label for="duration">Duration</label><input type="number" min="1" max="100" name="duration" id="duration" required>
+        <select name="time" id="time">
+            <option value="minutes">Minutes</option>
+            <option value="hours">Hours</option>
+            <option value="days">Days</option>
+        </select> {% endif %}
+        <button type="submit" onclick="return confirm('Are you sure?')">Confirm</button>
+    </form>
+    {%endif%}
+    {% if request.user == task.member.user and task.status == "Being Done" %}
+        <form class="form-control-sm bg-purple container text-center" action="{% url 'link' task.id %}" method="POST">
+            {% csrf_token %}
+            <label for="link"></label><input type="text" name="link" value="{{task.link}}" id="link">
+            <button type="submit">Add commit Hash</button>
+        </form>
+    {% endif %}
+
+    <h1 class="text-gold text-center">Statistics</h1>
+    <div class="bg-gold d-lg-flex justify-content-between">
+        <div>
+            <h3>Progress: <span class="text-danger">{{task.progress|floatformat:2}}%</span></h3>
+            <h3>Task: <span class="text-danger">{{task.name}}</span></h3>
+            <h3>Stage: <span class="text-danger">{{task.stage}}</span></h3>
+            <h3>status: <span class="text-danger">{{task.status}}</span></h3>
+            {% if task.status == "Being Done"%}
+                <h3>Start Date: <span class="text-danger">{{task.start_date}}</span></h3>
+                <h3>Deadline: <span class="text-danger">{{task.deadline}}</span></h3>
+        </div>
+        <div>
+                <h3>Time Spent: <span class="text-danger">{{task.duration}}</span></h3>
+                <h3>Time left: <span class="text-danger">{{task.period}}</span></h3>
+            {% endif %}
+            <h3>By: <span class="text-danger">{{task.member.user}}</span></h3>
+            {% if task.status != "Being Done"%}
+        </div>
+        <div>
+            {% endif %}
+            <h3>Version: <span class="text-danger">v{{task.version}}.{{task.update}}</span></h3>
+            <h3>Approval: <span class="text-danger">{{task.avg_evaluation}}%</span></h3>
+            <h3 id="link_point">Link:
+                <span class="text-danger"><a href="{{idea.link}}/tree/{{task.link}}" target="_blank">Hashed Work</a></span>
+            </h3>
+        </div>
+    </div>
+
+    <div class="text-center my-4 bg-purple">
+        <h3 class="text-purple">Task Description</h3>
+        <h5>{{task.description}}</h5>
+    </div>
+
+    <div id="reference_point">
+        <h1 class="text-purple text-center">Reference Tasks</h1>
+        {% if request.user == task.member.user and task.status == "Being Done" %}
+        <form class="form-control-sm container text-center" action="{% url 'reference' task.id %}#reference_point" method="POST">
+            {% csrf_token %}
+            <select name="tasks">
+            {% for reference in idea.tasks.all %}
+            {% if reference.member.user and task != reference %}
+                <option value="{{reference.id}}. {{reference.name}}">{{reference.name}} By {{reference.member.user}}</option> 
+            {% endif %}
+            {% endfor %}
+            </select>
+            <button type="submit">Add Reference</button>
+        </form>
+        {%endif%}
+        <div>
+            {% for reference in task.references.all %}
+            <div class="container my-2 bg-gold">
+                <h3 class=""><a href="{% url 'task_details' reference.referred_task.id %}" target="_blank">{{reference.referred_task}} by {{reference.referred_task.member.user}}</a></h3>
+                <h4 class="">{{reference.referred_task.progress}}% Complete and {{reference.referred_task.avg_evaluation}}% Approved</h4>
+                {% if request.user == task.member.user and task.status == "Being Done" %}
+                <form class="form-control-sm container" action="{% url 'remove_reference' reference.id %}#reference_point" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{task.id}}" name="task">
+                    <button type="submit" onclick="return confirm('Are you sure you want to delete this reference?')">Remove it</button>
+                </form>
+                {%endif%}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="milestone_point">
+        <h1 class="text-center text-gold mt-3">Milestones</h1>
+        {% if request.user == task.member.user and task.status == "Being Done" %}
+        <form class="form-control-sm mt-md-5 container text-center bg-purple" style="width: fit-content;" action="{% url 'milestones' task.id %}#milestone_point" method="POST">
+            {% csrf_token %}
+            <legend class="text-center text-gold">Add New Milestone</legend>
+            <input type="hidden" value="{{milestone.id}}" name="milestone_id">
+            <label class="d-block text-center" for="milestone_name">Milestone Name: </label><input type="text" maxlength="100" value="{{milestone.name}}" name="name" id="milestone_name" required>
+            <label class="d-block text-center mt-4" for="milestone_description">Milestone Description: </label><textarea name="description" id="milestone_description" cols="30" rows="10">{{milestone.description}}</textarea>
+            
+            <div class="text-center">
+                {% if milestone %}
+                <button type="submit" onclick="return confirm('Are you sure you want to edit this milestone?')">Edit Milestone</button>
+                {%else%}
+                <button type="submit">Add Milestone</button>
+                {% endif %}
+            </div>
+        </form>
+        {%endif%}
+        <div>
+            <h2 class="container text-gold text-center my-3 mx-auto mx-md-5 mx-lg-auto" style="width: 400px;">Unfinished Milestones</h2>
+            {% for milestone in task.milestones.all %} {% if milestone.status != "Done" %}
+            <div class="container bg-gold text-center my-3 mx-auto mx-md-5 mx-lg-auto" style="width: 400px;">
+                <h3>{{milestone.name}}</h3>
+                <h5>{{milestone.status}}</h5>
+                <p class="text-center">{{milestone.description}}</p>
+                {% if request.user == task.member.user and task.status == "Being Done" %}
+                <div class="d-sm-flex text-center justify-content-between container">
+                    <form class="form-control-sm d-md-inline" action="{% url 'edit_milestone' milestone.id %}#milestone_point" method="GET">
+                        {% csrf_token %}
+                        <input type="hidden" value="{{task.id}}" name="task">
+                        <button type="submit">Edit</button>
+                    </form>
+                    <form class="form-control-sm d-md-inline" action="{% url 'milestone_status' milestone.id %}#milestone_point" method="POST">
+                        {% csrf_token %}
+                            <input type="hidden" name="task" value="{{task.id}}">
+                            <select name="status">
+                            <option value="Given Up">Give Up</option>
+                            <option value="Done">Finish</option>
+                            <option value="Delete it">Delete it</option>
+                        </select>
+                            <button type="submit" onclick="return confirm('Are you sure?')">Yes</button>
+                    </form>
+                </div>
+                {%endif%}
+            </div>{% endif %} {% endfor %}
+        </div>
+
+        <div class="">
+            <h2 class="container text-purple text-center my-3 mx-auto mx-md-5 mx-lg-auto" style="width: 400px;">Finished Milestones</h2>
+        <div>
+            {% for milestone in task.milestones.all %} {% if milestone.status == "Done" %}
+            <div class="container bg-purple text-center my-3 mx-auto mx-md-5 mx-lg-auto" style="width: 400px;">
+                <h3>{{milestone.name}}</h3>
+                <h5>{{milestone.status}}</h5>
+                <p class="text-center">{{milestone.description}}</p>
+                {% if request.user == task.member.user and task.status == "Being Done" %}
+                <div class="d-sm-flex text-center justify-content-between container">
+                    <form class="form-control-sm d-md-inline" action="{% url 'edit_milestone' milestone.id %}#milestone_point" method="GET">
+                        {% csrf_token %}
+                        <input type="hidden" value="{{task.id}}" name="task">
+                        <button type="submit">Edit</button>
+                    </form>
+                    <form class="form-control-sm d-md-inline" action="{% url 'milestone_status' milestone.id %}#milestone_point" method="POST">
+                        {% csrf_token %}
+                            <input type="hidden" name="task" value="{{task.id}}">
+                            <select name="status">
+                            <option value="Given Up">Give Up</option>
+                            <option value="Done">Finish</option>
+                            <option value="Delete it">Delete it</option>
+                        </select>
+                            <button type="submit" onclick="return confirm('Are you sure?')">Yes</button>
+                    </form>
+                </div>
+                {%endif%}
+            </div>{% endif %} {% endfor %}
+        </div>
+    </div>
+
+    <h1 id="evaluation_point" class="text-gold text-center">Evaluation Section</h1>
+    {% if task.status == "Done" and request.user != task.member.user%}
+    <div>
+        <h2 class="text-danger text-center">Evaluate this task</h2>
+        <div class="bg-gold p-3 container" style="width: fit-content;">
+            <form action="{% url 'approve' task.id %}#evaluation_point" method="POST">
+                {% csrf_token %}
+                <label for="completion">Completion: <select name="completion" id="completion">
+                    <option value="Incomplete">Incomplete, so don't Approve</option>
+                    <option value="Completed">Completed hence you Approve</option>
+                </select>
+                <label for="evaluation">Evaluation: <input type="number" name="evaluation" id="evaluation" min="1" max="100" required></label>
+                <label for="reasons" class="d-block">Reasons: <textarea name="reasons" id="reasons" cols="30" rows="10" required></textarea></label>
+                <div class="text-center"><button type="submit">Done</button></div>
+            </form>
+        </div>
+        {%endif%} {% if task.status == "Done" or request.user == task.member.user%}
+        <div class="mt-4 bg-purple container" style="width: 512px;">
+            {% for approval in task.approvals.all %}
+            <div>
+                <h3>{{approval.member.user}}</h3>
+                {%if approval.completion == "Completed"%}
+                <p>{{approval.evaluation}}% Approved</p>
+                {%else%}
+                <p>{{approval.evaluation}}% Completed</p>
+                {%endif%}
+                <p>{{approval.reasons}}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div id="resource_point">
+        {% if request.user == task.member.user and task.status == "Being Done" %}
+        <h2 class="text-center text-purple">Add new learning Resource or Citation</h2>
+        <form class="form-control-sm container text-center bg-gold my-4" style="width: fit-content; clear:right;" action="{% url 'learning' task.id %}#resource_point" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="resource_id" value="{{edit_resource.id}}">
+            <label for="resource_name" class="d-block text-center mb-0">Resource Name: </label><input type="text" name="resource_name" maxlength="100" id="resource_name" value="{{edit_resource.name}}">
+            <label for="resource_link" class="d-block text-center mt-3 mb-0">Resource Link: </label><input type="text" name="resource_link" id="resource_link" value="{{edit_resource.link}}" required>
+            <label for="resource_description" class="d-block text-center mt-3 mb-0">Resource description: </label><textarea name="resource_description" id="resource_description" cols="30" rows="10" required>{{edit_resource.description}}</textarea>
+            <label for="resource_type" class="d-block text-center mt-3 mb-0">Resource Type: </label><select name="resource_type" id="resource_type">
+                {% if edit_resource.form == "Video" %}
+                <option value="Video" selected >Video</option>
+                {%else%}
+                <option value="Video">Video</option>
+                {% endif %}
+                {% if edit_resource.form == "Audio" %}
+                <option value="Audio" selected>Audio</option>
+                {%else%}
+                <option value="Audio">Audio</option>
+                {% endif %}
+                {% if edit_resource.form == "Document" %}
+                <option value="Document" selected>Document</option>
+                {%else%}
+                <option value="Document">Document</option>
+                {% endif %}
+                {% if edit_resource.form == "Images" %}
+                <option value="Images" selected>Images</option>
+                {%else%}
+                <option value="Images">Images</option>
+                {% endif %}
+                {% if edit_resource.form == "Text" %}
+                <option value="Text" selected>Text</option>
+                {%else%}
+                <option value="Text">Text</option>
+                {% endif %}
+            </select>
+            <label for="whose" class="d-block text-center mt-3 mb-0">Whose</label><select name="whose" id="whose">
+                {% if edit_resource.whose == "Mine" %}
+                <option value="Mine" selected>I just cited it</option>
+                {%else%}
+                <option value="Mine">I just cited it</option>
+                {%endif%}
+                {% if edit_resource.whose == "Not Mine" %}
+                <option value="Not Mine" selected>I made it myself</option>
+                {%else%}
+                <option value="Not Mine">I made it myself</option>
+                {%endif%}
+            </select>
+            <div class="text-center mt-3">
+                {% if edit_resource %}
+                <button type="submit" onclick="return confirm('Are you sure you want to edit this resource?')">Edit Source</button>
+                {%else%}
+                <button type="submit">Add Source</button>
+                {% endif %}
+            </div>
+            
+        </form>
+        {%endif%}
+
+        <h4 class="text-gold">{{task.name}} Learning Resources and Citations</h4>
+        {% for resource in task.learning.all %}
+        <div class="bg-purple my-2 px-4" style="width: 512px;">
+            <h5 class="text-center">
+                <a class="d-block d-md-inline" href="{{resource.link}}" target="_blank">{{resource.name}} in {{resource.form}} form (<i>{{resource.whose}}</i>)</a> <span class="d-block d-md-inline">Ratings: {{resource.avg_ratings}}</span>
+            </h5>
+            <h6 class="text-center">{{resource.description}}</h6>
+            <div class="d-flex justify-content-around">
+                {% if request.user == task.member.user and task.status == "Being Done" %}
+                <form class="form-control-sm" action="{% url 'delete_resource' resource.id %}#resource_point" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="task_id" value="{{task.id}}">
+                    <button type="submit" onclick="return confirm('Are you sure you want to delete this resource?')">Delete Resource</button>
+                </form>
+                <form class="form-control-sm" action="{% url 'edit_resource' resource.id %}#resource_point" method="GET">
+                    {% csrf_token %}
+                    <input type="hidden" name="task_id" value="{{task.id}}">
+                    <button type="submit">Edit Resource</button>
+                </form>
+                {%endif%}
+                {% if request.user != task.member.user%}
+                <form class="form-control-sm" action="{% url 'rate_resource' resource.id %}#resource_point" method="POST">
+                    {% csrf_token %} <input type="hidden" name="task" value="{{task.id}}"> {{rate}}
+                    <button type="submit">Rate</button>
+                </form>
+                {%endif%}
+            </div>
+            {% for rating in resource.rating.all %}
+            <div class="my-3 text-light px-5 pt-2" style="background-color: purple;">
+                <h4>{{rating.member.user}} Ratings: {{rating.ratings}}</h4>
+                <p>{{rating.review}}</p>
+            </div>
+            {% endfor %}
+        </div>{% endfor %}
+
+        <div id="search_point"><h3 class="text-center text-gold mt-4">Search Learning Resources and Citations</h3></div>
+        <form class=" form-control-sm text-center" action="{% url 'search_resource' task.id %}#search_point" method="GET">
+            {% csrf_token %}
+            <label for="keyword">Search: <input type="text" name="keyword" id="keyword"></label>
+            <label for="stage">Stage: <select name="stage" id="stage">
+                <option value="all">All</option>
+                <option value="Requirements Engineering">Requirements Engineering</option>
+                <option value="Systems Analysis and Design">Systems Analysis and Design</option>
+                <option value="UI/UX Design">UI/UX Design</option>
+                <option value="Data Structures and Algorithms">Data Structures and Algorithms</option>
+                <option value="Computer Programming and Coding">Computer Programming and Coding</option>
+                <option value="System Testing">System Testing</option>
+            </select></label>
+            <label for="Sorting">Sort: <select name="sorting" id="sorting">
+                <option value="date-desc">Newest</option>
+                <option value="date-asc">Oldest</option>
+                <option value="rating-desc">Highest Ratings</option>
+                <option value="rating-asc">Lowest Ratings</option>
+            </select></label>
+            <label for="form">Format: <select name="form" id="form">
+                <option value="all">All</option>
+                <option value="Video">Video</option>
+                <option value="Audio">Audio</option>
+                <option value="Document">Document</option>
+                <option value="Text">Text</option>
+                <option value="Images">Images</option>
+            </select></label>
+            <label for="researcher">Researcher: <select name="researcher" id="researcher">
+                <option value="all">All</option>
+                {% for researcher in member %}
+                <option value="{{researcher.id}}">{{researcher.user}}</option>
+                {% endfor %}
+            </select></label>
+            <div class="text-center"><button type="submit">Search</button></div>    
+        </form>
+
+        <div>
+            <h3 class="text-gold container">Search Results</h3>
+            {% for resource in resources %}
+            <div class="bg-purple my-2 px-4" style="width: 512px;">
+                <h6>
+                    <a href="{{resource.link}}" target="_blank">{{resource.name}} in {{resource.form}} form {{resource.researcher.user}}(<i>{{resource.whose}}</i>)</a> Ratings: {{resource.avg_ratings}}
+                </h6>
+                {% if request.user != resource.researcher.user%}
+                <form class=" form-control-sm" action="{% url 'rate_resource' resource.id %}#search_point" method="POST">
+                    {% csrf_token %} <input type="hidden" name="task" value="{{task.id}}"> {{rate}}
+                    <button type="submit">Rate</button>
+                </form>
+                {%endif%}
+                <h4>{{resource.description}}</h4>
+                {% for rating in resource.rating.all %}
+                <div class="my-3 text-light px-5 pt-2" style="background-color: purple;">
+                    <h6>{{rating.member.user}} Ratings: {{rating.ratings}}</h6>
+                    <p>{{rating.review}}</p>
+                </div>
+                {% endfor %}
+            </div>{% endfor %}
+        </div>
+    </div>
+
+    <script src="{% static 'bootstrap4/css/bootstrap.min.js' %}"></script>
+</body>
+
+</html>

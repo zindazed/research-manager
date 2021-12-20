@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class ResearchAppConfig(AppConfig):
+class AccountsConfig(AppConfig):
     name = 'research_app'

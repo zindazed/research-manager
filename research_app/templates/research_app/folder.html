@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>home</title>
+</head>
+<body>
+    <h1>Research Manager</h1>
+    <h2>{{request.user.username}}</h2>
+    <h1>Home</h1>
+    <h5>path</h5>
+    <h3 style="color: green;">{{request.session.successMessage}}</h3>
+    <h3 style="color: red;">{{request.session.failMessage}}</h3>
+    <h2><a href="{% url 'logout' %}">Log Out</a></h2>
+    <form action="{% url 'addTopic' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="folder" value="">
+        <label for="type">Type: <select name="type" id="type" required>
+            <option value="folder">Folder</option>
+            <option value="researchWork">Folder</option>
+            <option value="mergedSummary">Merged Summary</option>
+        </select></label>
+        <label for="name">Name: <input type="text" name="name" id="name" required></label>
+        <label for="description">Description(optional): <textarea name="description" id="description" cols="30" rows="10"></textarea></label>
+        <button type="submit">Add</button>
+    </form>
+</body>
+</html>

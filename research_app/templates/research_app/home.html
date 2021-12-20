@@ -4,13 +4,128 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>home</title>
 </head>
 <body>
-    <h1>Welcome Home</h1>
-    <div contenteditable="True">
-        <h2>hey there</h2>
-        <p>this is a good beggining</p>
+    <h1>Research Manager</h1>
+    <h2>{{request.user.username}}</h2>
+    <h1>Home</h1>
+    <h3 style="color: green;">{{request.session.successMessage}}</h3>
+    <h3 style="color: red;">{{request.session.failMessage}}</h3>
+    <h2><a href="{% url 'logout' %}">Log Out</a></h2>
+    <form action="{% url 'addTopic' %}" method="post">
+        {% csrf_token %}
+        <label for="type">Type: <select name="type" id="type" required>
+            <option value="folder">Folder</option>
+            <option value="researchWork">Research Work</option>
+            <option value="mergedSummary">Merged Summary</option>
+        </select></label>
+        <label for="name">Name: <input type="text" name="name" id="name" required></label>
+        <label for="description">Description(optional): <textarea name="description" id="description" cols="30" rows="10"></textarea></label>
+        <button type="submit">Add</button>
+    </form>
+
+    <div>
+        <div>
+            {% for folder in folders %}
+                <div id="{{folder.id}}{{folder.name}}">
+                    {% if request.session.editId|add:0 == folder.id and request.session.editType == "folder" %}
+                        <form action="{% url 'editTopic' %}#{{folder.id}}{{folder.name}}" method="POST">
+                            {% csrf_token %}
+                            <legend>Folder</legend>
+                            <input type="hidden" name="id" value="{{folder.id}}"></label>
+                            <input type="hidden" name="type" value="folder"></label>
+                            <label for="name">Name: <input type="text" name="name" id="name" value="{{request.session.name}}" required></label>
+                            <label for="description">Description(optional): <textarea name="description" id="description" cols="30" rows="10">{{request.session.description}}</textarea></label>       
+                            <button type="submit">Edit</button>
+                        </form>
+                    {% else %}
+                        <h2>Folder: {{folder.name}}</h2>
+                        <h4>{{folder.description}}</h4>
+                    {% endif %}
+                    
+                    {% if request.session.editId|add:0 != folder.id and request.session.editType != "folder" %}
+                        <form action="{% url 'editTopic' %}#{{folder.id}}{{folder.name}}" method="GET">
+                            <input type="hidden" name="id" value="{{folder.id}}">
+                            <input type="hidden" name="type" value="folder">
+                            <button type="submit">Edit</button>
+                        </form>
+                    {% endif %}
+
+                    <form action="{% url 'deleteTopic' %}" method="GET">
+                        <input type="hidden" name="id" value="{{folder.id}}">
+                        <input type="hidden" name="type" value="folder">
+                        <button type="submit">Delete</button>
+                    </form>
+                </div>
+            {% endfor %}
+
+            {% for researchWork in researchWorks %}
+                <div id="{{researchWork.id}}{{researchWork.name}}">
+                    {% if request.session.editId|add:0 == researchWork.id and request.session.editType == "researchWork" %}
+                        <form action="{% url 'editTopic' %}#{{researchWork.id}}{{researchWork.name}}" method="POST">
+                            {% csrf_token %}
+                            <legend>Research Work</legend>
+                            <input type="hidden" name="id" value="{{researchWork.id}}"></label>
+                            <input type="hidden" name="type" value="researchWork"></label>
+                            <label for="name">Name: <input type="text" name="name" id="name" value="{{request.session.name}}" required></label>
+                            <label for="description">Description(optional): <textarea name="description" id="description" cols="30" rows="10">{{request.session.description}}</textarea></label>       
+                            <button type="submit">Edit</button>
+                        </form>
+                    {% else %}
+                        <h2>Research Work: {{researchWork.name}}</h2>
+                        <h4>{{researchWork.description}}</h4>
+                    {% endif %}
+                    
+                    {% if request.session.editId|add:0 != researchWork.id and request.session.editType != "researchWork" %}
+                        <form action="{% url 'editTopic' %}#{{researchWork.id}}{{researchWork.name}}" method="GET">
+                            <input type="hidden" name="id" value="{{researchWork.id}}">
+                            <input type="hidden" name="type" value="researchWork">
+                            <button type="submit">Edit</button>
+                        </form>
+                    {% endif %}
+
+                    <form action="{% url 'deleteTopic' %}" method="GET">
+                        <input type="hidden" name="id" value="{{researchWork.id}}">
+                        <input type="hidden" name="type" value="researchWork">
+                        <button type="submit">Delete</button>
+                    </form>
+                </div>
+            {% endfor %}
+
+            {% for mergedSummary in mergedSummaries %}
+                <div id="{{mergedSummary.id}}{{mergedSummary.name}}">
+                    {% if request.session.editId|add:0 == mergedSummary.id and request.session.editType == "mergedSummary" %}
+                        <form action="{% url 'editTopic' %}#{{mergedSummary.id}}{{mergedSummary.name}}" method="POST">
+                            {% csrf_token %}
+                            <legend>Merged Summary</legend>
+                            <input type="hidden" name="id" value="{{mergedSummary.id}}"></label>
+                            <input type="hidden" name="type" value="mergedSummary"></label>
+                            <label for="name">Name: <input type="text" name="name" id="name" value="{{request.session.name}}" required></label>
+                            <label for="description">Description(optional): <textarea name="description" id="description" cols="30" rows="10">{{request.session.description}}</textarea></label>       
+                            <button type="submit">Edit</button>
+                        </form>
+                    {% else %}
+                        <h2>Merged Summary: {{mergedSummary.name}}</h2>
+                        <h4>{{mergedSummary.description}}</h4>
+                    {% endif %}
+                    
+                    {% if request.session.editId != mergedSummary.id and request.session.editType != "mergedSummary" %}
+                        <form action="{% url 'editTopic' %}#{{mergedSummary.id}}{{mergedSummary.name}}" method="GET">
+                            <input type="hidden" name="id" value="{{mergedSummary.id}}">
+                            <input type="hidden" name="type" value="mergedSummary">
+                            <button type="submit">Edit</button>
+                        </form>
+                    {% endif %}
+
+                    <form action="{% url 'deleteTopic' %}" method="GET">
+                        <input type="hidden" name="id" value="{{mergedSummary.id}}">
+                        <input type="hidden" name="type" value="mergedSummary">
+                        <button type="submit">Delete</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 </body>
 </html>

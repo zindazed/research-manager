@@ -1,0 +1,10 @@
+{% extends "Accounts/homepage.html" %}
+<div>
+    {% block nav %} {% include "Accounts/nav-out.html" %} {% endblock %}
+</div>
+
+{% block rate %}
+<form class="form-control-sm" action="{% url 'project_rate' project.id %}#rate_point" method="POST">
+    {% csrf_token %} {{ rate }}
+    <button type="submit">Rate</button>
+</form>{% endblock %}

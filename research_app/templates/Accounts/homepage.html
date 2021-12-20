@@ -1,0 +1,141 @@
+{% load static from staticfiles %}
+{% load library %}
+<html>
+
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?{% now 'U' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap4/css/bootstrap.min.css' %}">
+</head>
+
+<body>
+    <div class="">
+        {% block nav %} {% endblock %}
+    </div>
+    <div class="row text-center">
+        <div class="col-12 col-lg  bg-purple p-2">
+            <h1 class="text-gold">Vision</h1>
+            <p class="lead">To become leading experts in the field of software, thereby making numerous impacts in various fields of technology aimed at helping humanity, bettering the world and pleasing God</p>
+        </div>
+        <div class="col-12 col-lg bg-gold my-2 mx-lg-5">
+            <h1 class="text-purple">Mission</h1>
+            <p>We conduct research in science and technology, generate tech ideas that solve problems and improve lives. implement such ideas to provide high quality and up to date tech products and services, train people on how to use the technologies, implement
+            corporate social responsibility and keep within the limits of God</p>
+        </div>
+        <div class="col-12 col-lg my-lg-0 bg-purple p-2">
+            <h1 class="text-gold">Values</h1>
+            <p class="lead">Honesty, Commitment, Perseverance, Justice, Trust in God, Trust in eachother, Creativity, Humanity, Cautious of God, Intelligence, Authenticity, Orderliness</p>
+        </div>
+    </div>
+
+    {% block stats %}
+      
+    {% endblock stats %}
+    
+    <div>
+        <h1 class="text-gold text-center my-4">ByteMontan Officials</h1>
+        <div class="d-flex justify-content-center">
+            {% block adduser %} {% endblock %} 
+        </div>
+        <div class="container">  
+            {% for profile,the_profile in profiles %}
+            <div id="{{profile.user}}" class="float-lg-left mx-auto mx-lg-1 my-3 m-xl-5 my-3 clearfix p-1 bg-dark d-lg-flex justify-content-lg-sbetween profile-card">
+                <div>
+                    <div class="rounded-circle bg-gold p-1 mt-1 mx-auto mx-lg-1" style="width: 194px; height: 150px; background-image: url({{profile.image.url}}); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+                    {% if request.user.is_superuser %}
+                        <form class="d-flex justify-content-center mt-2" action="{% url 'remove_user' profile.user.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" onclick="return confirm('Are you sure you want to delete this User?')">Remove User</button>
+                        </form>
+                    {% endif %}
+                </div>
+                <div class="">    
+                    <h4 class="mt-3 d-flex justify-content-center">
+                        <a href="{% url 'profile' profile.id %}">{{profile.user.username}}</a>
+                    </h4>
+                    <div class="d-flex justify-content-lg-between justify-content-around">  
+                        {%if the_profile.rank == "Junior" or the_profile.rank == "All-Rounder"%}
+                            <h5 class="text-success mr-3">{{the_profile.rank}}</h5>
+                        {%elif the_profile.rank == "Senior" or the_profile.rank == "Pro"%}
+                            <h5 class="text-warning mr-3">{{the_profile.rank}}</h5>
+                        {%elif the_profile.rank == "Master" or the_profile.rank == "Expert" or the_profile.rank == "Specialist"%}
+                            <h5 class="text-gold mr-3">{{the_profile.rank}}</h5>
+                        {%elif the_profile.rank == "Genius" or the_profile.rank == "GrandMaster"%}
+                            <h5 class="text-danger mr-3">{{the_profile.rank}}</h5>
+                        {%else%}
+                            <h5 class="text-light mr-3">{{the_profile.rank}}</h5>
+                        {% endif %}
+
+                        {%if the_profile.pbadge == "Doer"%}
+                            <h5 class="text-success">{{the_profile.pbadge}}</h5>
+                        {%elif the_profile.pbadge == "Executor"%}
+                            <h5 class="text-gold">{{the_profile.pbadge}}</h5>
+                        {%elif the_profile.pbadge == "Achiever"%}
+                            <h5 class="text-danger">{{the_profile.pbadge}}</h5>
+                        {%else%}
+                            <h5 class="text-light">{{the_profile.pbadge}}</h5>
+                        {% endif %}
+                    </div>  
+
+                    <div class="d-flex justify-content-lg-between justify-content-around">
+                        {%if the_profile.cbadge == "Dreamer"%}
+                            <h5 class="text-success mr-3">{{the_profile.cbadge}}</h5>
+                        {%elif the_profile.cbadge == "Idealist"%}
+                            <h5 class="text-gold mr-3">{{the_profile.cbadge}}</h5>
+                        {%elif the_profile.cbadge == "Visionary"%}
+                            <h5 class="text-danger mr-3">{{the_profile.cbadge}}</h5>
+                        {%else%}
+                            <h5 class="text-light mr-3">{{the_profile.cbadge}}</h5>
+                        {% endif %}
+
+                        {%if the_profile.rbadge == "Learner"%}
+                            <h5 class="text-success">{{the_profile.rbadge}}</h5>
+                        {%elif the_profile.rbadge == "Researcher"%}
+                            <h5 class="text-gold">{{the_profile.rbadge}}</h5>
+                        {%elif the_profile.rbadge == "Consultant"%}
+                            <h5 class="text-danger">{{the_profile.rbadge}}</h5>
+                        {%else%}
+                            <h5 class="text-light">{{the_profile.rbadge}}</h5>
+                        {% endif %}
+                    </div>
+                    <h5 class="d-flex justify-content-center text-purple">{{profile.major_role}}</h5>
+                </div>
+            </div>
+            {% endfor %}
+        </div>  
+    </div>
+    <div id="rate_point" class="float-left w-100">
+        <h1 class="text-center text-gold mt-4">Projects Made</h1>
+        {% for project in projects %}
+        <div class="container">
+            <h2 class="float-left">
+                <a href="{{project.link}}" target="_blank">{{project.name}}</a>
+            </h2>
+            <h3 class="float-right">Rating: {{project.avg_ratings|floatformat:1}}</h3>
+            <div class="w-100 img-thumbnail" style="clear: both; height: 300px; background-image: url({{project.image.url}}); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+            <p>{{project.description}}</p>
+            <div>{% block rate %} {% endblock %}</div>
+            <div>
+                {% for rating in project.ratings.all %}
+                <div class="bg-purple rounded px-3 py-1 my-3">
+                    <h3 class="text-danger">{{rating.email}}</h3>
+                    <p class="text-gold">{{rating.ratings}}</p>
+                    <p class="">{{rating.review}}</p>
+                    {% for reply in rating.replies.all %}
+                    <div style="color: red;">
+                        <h4>{{reply.member.user}}</h4>
+                        <p>{{reply.reply}}</p>
+                    </div>{% endfor %} {% block reply %} {% endblock %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <script src="{% static 'bootstrap4/css/bootstrap.min.js' %}"></script>
+</body>
+
+</html>
