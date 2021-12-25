@@ -10,8 +10,9 @@
     <h1>Research Manager</h1>
     <h6><a href="{% url 'signup' %}">Sign Up</a></h6>
     <h2>Login</h2>
-    <h3 style="color: green;">{{request.session.successMessage}}</h3>
-    <h3 style="color: red;">{{request.session.failMessage}}</h3>
+    {% if failMessage %}
+        <h3 style="color: red;"><span style="color: orange;">Last Activity Status: </span>{{failMessage}}</h3>
+    {% endif %}
     <form action="{% url 'login' %}" method="post">
         {% csrf_token %}
         <label for="email">Email: <input type="email" name="email" id="email" required></label>

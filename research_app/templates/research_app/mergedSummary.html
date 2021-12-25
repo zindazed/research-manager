@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{mergedSummaryTopic.name}}</title>
+</head>
+<body>
+    <h1>Research Manager</h1>
+    <h2>{{request.user.last_name}}</h2>
+    <h1>{{mergedSummaryTopic.name}}</h1>
+    <h3>
+        <a href="{% url 'home' %}">home</a>
+        {% for directory in path %}
+        / <a href="{% url 'folder' directory.id %}">{{directory.name}}</a>
+        {% endfor %}
+    </h3>
+    <h2><a href="{% url 'logout' %}">Log Out</a></h2>
+
+    <div>
+        {% if request.session.successMessage %}
+            <h3 style="color: green;"><span style="color: orange;">Last Activity Status: </span>{{request.session.successMessage}}</h3>
+        {% elif request.session.failMessage %}
+            <h3 style="color: red;"><span style="color: orange;">Last Activity Status: </span>{{request.session.failMessage}}</h3>
+        {% endif %}
+    </div>
+
+    <form action="{% url 'switchWork' mergedSummaryTopic.id %}" method="get">
+        <label for="attachedWork">Attached Work:</label>
+        <select name="attachedWork" id="attachedWork">
+            {% for attachment in attachedWork %}
+                <option value="{{attachment.id}}-{{attachment.docType}}-{{attachment.isDuplicate}}"><h2>
+                    {% if attachment.isDuplicate == "True" %}
+                        <span>Duplicate</span>
+                    {% endif %}
+                    {% if attachment.docType == "researchWork" %}
+                        <span>Research Work: </span>
+                    {% elif attachment.docType == "researchSummary" %}
+                        <span>Research Summary: </span>
+                    {% elif attachment.docType == "mergedSummary" %}
+                        <span>Merged Summary: </span>
+                    {% endif %}
+                    {{attachment.name}}</h2>
+                {% if attachment.isDuplicate == "True" %}
+                    <h4>({{attachment.reason}})</h4>
+                {% endif %}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Switch</button>
+    </form>
+
+    <!-- ---start -->
+    {% if workTopic %}
+        <h2 id="work">{{workTopic.name}} {{workTopic.docType}} 
+            {% if isDuplicate == "True" %}
+                Duplicate - Reason: {{work.reason}}
+            {% endif %}
+            {% if type == "researchWork" and isDuplicate != "True" %}
+                <form action="{% url 'visitLink' %}" method="get" target="_blank" style="display: inline;">
+                    <select name="link" id="link">
+                        {% for link in links %}
+                            <option value="{{link.url}}">{{link.name}}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Visit</button>
+                </form>
+            {% endif %}
+        </h2>
+        <form action="{% url 'editWork' mergedSummaryTopic.id %}#work" method="post">
+        {% csrf_token %}
+        {% if isDuplicate == "True"%}
+            <input type="hidden" name="isDuplicate" value="{{isDuplicate}}">
+        {% endif %}
+        <input type="hidden" name="docType" value="{{type}}">
+        <input type="hidden" name="workId" value="{{work.id}}">
+        <textarea name="work" id="work" rows="16" placeholder="No Duplicate Research Done yet......." style="width: 100%;">{{work.work}}</textarea>
+
+        <h2>{{mergedSummaryTopic.name}} Merged Summary 
+            {% if summaryDuplicate %}
+                Duplicate - Reason: {{summaryDuplicate.reason}}
+            {% endif %}
+            <button type="submit">Save</button>
+        </h2>
+        {% if summaryDuplicate %}
+            <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
+            <input type="hidden" name="reason" value="{{summaryDuplicate.reason}}">
+            <textarea name="mergedSummary" id="mergedSummary" placeholder="Summary duplicate has not yet been done......." rows="16" style="width: 100%;">{{summaryDuplicate.work}}</textarea>
+        {% else %}
+            <textarea name="mergedSummary" id="mergedSummary" placeholder="Summary has not yet been done......." rows="16" style="width: 100%;">{{mergedSummary.work}}</textarea>
+        {% endif %}
+        </form>
+    {% endif %}  
+    <!-- ---stop -->
+
+    <form action="{% url 'switchMerge' mergedSummaryTopic.id %}" method="get" style="display: inline;">
+        <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
+        <input type="hidden" name="isDuplicate" value="{{isDuplicate}}">
+        <input type="hidden" name="workId" value="{{work.id}}">
+        <input type="hidden" name="docType" value="{{type}}">
+        
+        <span>Switch Merged Research:</span>
+        <select name="merge" id="merge">
+            <option value="original" style="color: blueviolet;">Original Merged Summary</option>
+            {% for merge in mergedSummary.mergedSummaryDuplicates.all %}
+                <option value="{{merge.id}}">{{merge.reason}}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Visit</button>
+    </form>
+
+    <form action="{% url 'duplicateMerge' mergedSummaryTopic.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
+        <input type="hidden" name="isDuplicate" value="{{isDuplicate}}">
+        <input type="hidden" name="workId" value="{{work.id}}">
+        <input type="hidden" name="docType" value="{{type}}">
+
+        <label for="reason">Reason:</label>
+        <input type="text" name="reason" id="reason">
+        <button type="submit">Duplicate Research</button>
+    </form>
+
+    <!-- Merged Search -->
+    <div id="search">
+        <form action="{% url 'mergedSearch' mergedSummaryTopic.id %}#search" method="get">           
+            <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
+            <input type="hidden" name="isDuplicate" value="{{isDuplicate}}">
+            <input type="hidden" name="workId" value="{{work.id}}">
+            <input type="hidden" name="docType" value="{{type}}">
+            
+            <input type="text" name="search" id="search">
+            <button type="submit">Search</button>
+            
+            <div>
+                <span>Search for:</sapn>
+                <input type="checkbox" name="docTypes" value="Research Work" id="Research Work" checked>
+                <label for="Research Work">Research Work</label>
+
+                <input type="checkbox" name="docTypes" value="Research Summary" id="Research Summary" checked>
+                <label for="Research Summary">Research Summary</label>
+
+                <input type="checkbox" name="docTypes" value="Merged Summary" id="Merged Summary" checked>
+                <label for="Merged Summary">Merged Summary</label>          
+                     
+                <input type="checkbox" name="docTypes" value="Research Work Duplicate" id="Research Work Duplicate" checked>
+                <label for="Research Work Duplicate">Research Work Duplicate</label>
+
+                <input type="checkbox" name="docTypes" value="Research Summary Duplicate" id="Research Summary Duplicate" checked>
+                <label for="Research Summary Duplicate">Research Summary Duplicate</label>
+
+                <input type="checkbox" name="docTypes" value="Merged Summary Duplicate" id="Merged Summary Duplicate" checked>
+                <label for="Merged Summary Duplicate">Merged Summary Duplicate</label>          
+                     
+            </div>
+        </form>
+    </div>
+
+    {% if searchResults %}
+    <div style="background-color: aqua;">
+        <h1>Search Results</h1>
+        {% for result in searchResults %}
+            <div>
+                <h2>
+                    {% if result.isDuplicate == "True" %}
+                        <span>Duplicate</span>
+                    {% endif %}
+                    {% if result.docType == "researchWork" %}
+                        <span>Research Work: </span>
+                    {% elif result.docType == "researchSummary" %}
+                        <span>Research Summary: </span>
+                    {% elif result.docType == "mergedSummary" %}
+                        <span>Merged Summary: </span>
+                    {% endif %}
+                    {{result.name}}</h2>
+                {% if result.isDuplicate == "True" %}
+                    <h4>Reason: {{result.reason}}</h4>
+                {% endif %}
+
+                {% if result in attachedWork %}
+                    <form action="{% url 'detachWork' mergedSummaryTopic.id %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
+                        <input type="hidden" name="isDuplicate" value="{{isDuplicate}}">
+                        <input type="hidden" name="workId" value="{{work.id}}">
+                        <input type="hidden" name="docType" value="{{type}}">
+                        
+                        <input type="hidden" name="isResultDuplicate" value="{{result.isDuplicate}}">
+                        <input type="hidden" name="resultDocType" value="{{result.docType}}">
+                        <input type="hidden" name="resultId" value="{{result.id}}">
+                        <button type="submit">Detach</button>
+                    </form>
+                {% else %}
+                    <form action="{% url 'attachWork' mergedSummaryTopic.id %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
+                        <input type="hidden" name="isDuplicate" value="{{isDuplicate}}">
+                        <input type="hidden" name="workId" value="{{work.id}}">
+                        <input type="hidden" name="docType" value="{{type}}">
+                        
+                        <input type="hidden" name="isResultDuplicate" value="{{result.isDuplicate}}">
+                        <input type="hidden" name="resultDocType" value="{{result.docType}}">
+                        <input type="hidden" name="resultId" value="{{result.id}}">
+                        
+                        {% if result.isDuplicate != "True" and result.docType == "mergedSummary" and result.id|stringformat:"i" == mergedSummary.id|stringformat:"i" %}
+                            <button type="submit" disabled>Attach</button>
+                        {% else %}
+                            <button type="submit">Attach</button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</body>
+</html>
