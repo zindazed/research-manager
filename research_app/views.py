@@ -1,5 +1,6 @@
 from django.db.models.query_utils import Q
 from .models import *
+from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -376,8 +377,11 @@ def researchWork(request,topicId):
 
     links = Link.objects.filter(researchWork = researchWork)
 
-    originalResearchSummary = researchWork.researchSummary
-    summaries = ResearchSummaryDuplicate.objects.filter(originalResearchSummary = originalResearchSummary)
+    try:
+        originalResearchSummary = researchWork.researchSummary
+        summaries = ResearchSummaryDuplicate.objects.filter(originalResearchSummary = originalResearchSummary)
+    except ObjectDoesNotExist:
+        summaries = []
     researches = ResearchWorkDuplicate.objects.filter(originalResearchWork = researchWork)
     return render(request,"research_app/researchWork.html",{
         "researchWork":researchWork,
@@ -1435,8 +1439,11 @@ def researchWorkDuplicate(request, duplicateId):
 
     links = Link.objects.filter(researchWorkDuplicate = researchDuplicate)
     
-    originalResearchSummary = researchWork.researchSummary
-    summaries = ResearchSummaryDuplicate.objects.filter(originalResearchSummary = originalResearchSummary)
+    try:
+        originalResearchSummary = researchWork.researchSummary
+        summaries = ResearchSummaryDuplicate.objects.filter(originalResearchSummary = originalResearchSummary)
+    except ObjectDoesNotExist:
+        summaries = []
     return render(request,"research_app/researchWork.html",{
         "summaries":summaries,
         "researchWork":researchWork,

@@ -29,7 +29,6 @@
             {% if researchWorkDuplicate %}
                 Duplicate - Reason: {{researchWorkDuplicate.reason}}
             {% endif %}
-            {% if type == "researchWork" %}
                 <form action="{% url 'visitLink' %}" method="get" target="_blank" style="display: inline;">
                     <select name="link" id="link">
                         {% for link in links %}
@@ -38,7 +37,6 @@
                     </select>
                     <button type="submit">Visit</button>
                 </form>
-            {% endif %}
         </h2>
         <form action="{% url 'editResearch' researchWorkTopic.id %}#work" method="post">
         {% csrf_token %}

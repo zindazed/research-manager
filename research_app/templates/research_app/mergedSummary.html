@@ -26,7 +26,7 @@
         {% endif %}
     </div>
 
-    <form action="{% url 'switchWork' mergedSummaryTopic.id %}" method="get">
+    <form action="{% url 'switchWork' mergedSummaryTopic.id %}#work" method="get">
         <label for="attachedWork">Attached Work:</label>
         <select name="attachedWork" id="attachedWork">
             {% for attachment in attachedWork %}
@@ -93,7 +93,7 @@
     {% endif %}  
     <!-- ---stop -->
 
-    <form action="{% url 'switchMerge' mergedSummaryTopic.id %}" method="get" style="display: inline;">
+    <form action="{% url 'switchMerge' mergedSummaryTopic.id %}#work" method="get" style="display: inline;">
         <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
         <input type="hidden" name="isDuplicate" value="{{isDuplicate}}">
         <input type="hidden" name="workId" value="{{work.id}}">
@@ -109,7 +109,7 @@
         <button type="submit">Visit</button>
     </form>
 
-    <form action="{% url 'duplicateMerge' mergedSummaryTopic.id %}" method="post">
+    <form action="{% url 'duplicateMerge' mergedSummaryTopic.id %}#work" method="post">
         {% csrf_token %}
         <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
         <input type="hidden" name="isDuplicate" value="{{isDuplicate}}">
