@@ -9,17 +9,25 @@
     <title>SignUp</title>
 </head>
 <body>
-    <h1>Research Manager</h1>
-    <h6><a href="{% url 'signup' %}">Sign Up</a></h6>
-    <h2>Login</h2>
-    {% if failMessage %}
-        <h3 style="color: red;"><span style="color: orange;">Last Activity Status: </span>{{failMessage}}</h3>
-    {% endif %}
-    <form action="{% url 'login' %}" method="post">
-        {% csrf_token %}
-        <label for="email">Email: <input type="email" name="email" id="email" required></label>
-        <label for="password">Password: <input type="password" name="password" id="password" required></label>
-        <button type="submit">Login</button>
-    </form>
+    <div class="text-center">
+        <h1 class="text-primary" >Research Manager</h1>
+        <h2>Login</h2>
+    </div>
+    <div style="height:60vh" class="container d-flex justify-content-center align-items-center">
+        <div>
+            {% if failMessage %}
+            <h3 style="color: red;"><span style="color: orange;">Last Activity Status: </span>{{failMessage}}</h3>
+            {% endif %}
+            <form action="{% url 'login' %}" method="post">
+                {% csrf_token %}
+                <label for="email">Email: </label><input class="form-control" type="email" name="email" id="email" required>
+                <label for="password">Password: </label><input class="form-control"  type="password" name="password" id="password" required>
+                <div class="text-center">
+                    <button class="mt-3 btn btn-primary" type="submit">Login</button>
+                </div>
+            </form>
+            <p class="text-center mt-2">create an acccount <span class="text-primary"><a style="font-style: italic;" href="{% url 'signup' %}">here</a></span></p>
+        </div>
+    </div>
 </body>
 </html>

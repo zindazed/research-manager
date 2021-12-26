@@ -1,187 +1,209 @@
-    <h2><a href="{% url 'logout' %}">Log Out</a></h2>
-    {% if request.session.movingTopic %}
-        <form action="{% url 'moveTopic' %}" method="post">
+    <div class="container mx-auto">
+        {% if request.session.movingTopic %}
+            <form action="{% url 'moveTopic' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="topicId" value="{{request.session.movingTopic}}">
+                {% if folderTopic %}
+                    <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
+                {% endif %}
+                <button type="submit">Paste</button>
+            </form>
+        {% endif %}
+        <form class=" form-control-sm" action="{% url 'addTopic' %}" method="post">
             {% csrf_token %}
-            <input type="hidden" name="topicId" value="{{request.session.movingTopic}}">
-            {% if folderTopic %}
-                <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
+
+            {% if folder %}
+                <input type="hidden" name="folder" value="{{folder.id}}">
             {% endif %}
-            <button type="submit">Paste</button>
+            <div class=" container">
+                <div class="">
+                    <div>
+                        <label for="type">Type: </label><select class="form-control" name="type" id="type" required>
+                            <option value="Folder">Folder</option>
+                            <option value="Research Work">Research Work</option>
+                            <option value="Merged Summary">Merged Summary</option>
+                        </select>
+                        <label for="name">Name: </label><input class="form-control" type="text" name="name" id="name" required>
+                    </div>
+                    <div class="">
+                        <label for="description">Description(optional): </label><textarea name="description" id="description" class="form-control" cols="30" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="mt-3 text-center">
+                    <button class="btn btn-primary" type="submit">Add</button>
+                </div>
+            </div>
         </form>
-    {% endif %}
-    <form action="{% url 'addTopic' %}" method="post">
-        {% csrf_token %}
 
-        {% if folder %}
-            <input type="hidden" name="folder" value="{{folder.id}}">
-        {% endif %}
-        <label for="type">Type: <select name="type" id="type" required>
-            <option value="Folder">Folder</option>
-            <option value="Research Work">Research Work</option>
-            <option value="Merged Summary">Merged Summary</option>
-        </select></label>
-        <label for="name">Name: <input type="text" name="name" id="name" required></label>
-        <label for="description">Description(optional): <textarea name="description" id="description" class="form-control" cols="30" rows="10"></textarea></label>
-        <button type="submit">Add</button>
-    </form>
-
-    <div>
-        {% if folderTopic %}
-        <form action="{% url 'search' folderTopic.id %}" method="get">           
-        {% else %}
-        <form action="{% url 'searchHome' %}" method="get"> 
-        {% endif %}
-            <input type="text" name="search" id="search">
-            <button type="submit">Search</button>
+        <div>
+            {% if folderTopic %}
+            <form class="form-control-sm" action="{% url 'search' folderTopic.id %}" method="get">           
+            {% else %}
+            <form class="form-control-sm" action="{% url 'searchHome' %}" method="get"> 
+            {% endif %}
+            <div class="container mt-5">
+                <div class="d-flex">
+                    <input class="form-control" type="text" name="search" id="search">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
             
-            <div>
-                <span>Search in:</span>
-                <input type="checkbox" name="filter" value="name" id="name" checked>
-                <label for="name">Name</label>
-                
-                <input type="checkbox" name="filter" value="description" id="description">
-                <label for="description">Description</label>
+                <div class="d-md-flex justify-content-between">
+                    <div>
+                        <div>Search in:</div>
+                        <input type="checkbox" name="filter" value="name" id="name" checked>
+                        <label for="name">Name</label>
+                        
+                        <input type="checkbox" name="filter" value="description" id="description">
+                        <label for="description">Description</label>
 
-                <input type="checkbox" name="filter" value="work" id="work">
-                <label for="work">Work</label>
+                        <input type="checkbox" name="filter" value="work" id="work">
+                        <label for="work">Work</label>
+                    </div>
+                    
+                    <div>
+                        <div>Search for:</div>
+                        <input type="checkbox" name="docType" value="Folder" id="Folder" checked>
+                        <label for="Folder">Folder</label>
+                        
+                        <input type="checkbox" name="docType" value="Research Work" id="Research Work" checked>
+                        <label for="Research Work">Research Work</label>
 
-                <br>
-                <span>Search for:</sapn>
-                <input type="checkbox" name="docType" value="Folder" id="Folder" checked>
-                <label for="Folder">Folder</label>
-                
-                <input type="checkbox" name="docType" value="Research Work" id="Research Work" checked>
-                <label for="Research Work">Research Work</label>
-
-                <input type="checkbox" name="docType" value="Merged Summary" id="Merged Summary" checked>
-                <label for="Merged Summary">Merged Summary</label>
+                        <input type="checkbox" name="docType" value="Merged Summary" id="Merged Summary" checked>
+                        <label for="Merged Summary">Merged Summary</label>
+                    </div>
+                </div>
             </div>
-        </form>
-    </div>
+            </form>
+        </div>
 
-    <div id="return">
-        {% if request.session.successMessage %}
-            <h3 style="color: green;"><span style="color: orange;">Last Activity Status: </span>{{request.session.successMessage}}</h3>
-        {% elif request.session.failMessage %}
-            <h3 style="color: red;"><span style="color: orange;">Last Activity Status: </span>{{request.session.failMessage}}</h3>
+        <div id="return">
+            {% if request.session.successMessage %}
+                <h3 style="color: green;"><span style="color: orange;">Last Activity Status: </span>{{request.session.successMessage}}</h3>
+            {% elif request.session.failMessage %}
+                <h3 style="color: red;"><span style="color: orange;">Last Activity Status: </span>{{request.session.failMessage}}</h3>
+            {% endif %}
+        </div>
+
+        {% if searchResults %}
+        <div class="bg-light border-bottom border-top border-success my-4">
+            <h1>Search Results</h1>
+            {% for topic in searchResults %}
+                <div class="card p-2 mb-2 bg-transparent" id="{{topic.id}}{{topic.name}}">
+                    {% if request.session.editId|add:0 == topic.id %}
+                        <form action="{% url 'editTopic' %}#{{topic.id}}{{topic.name}}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value="{{topic.id}}"></label>
+                            <h2>{% if topic.docType == "Folder" %}
+                                <span>Folder: </span>
+                            {% elif topic.docType == "Research Work" %}
+                                <span>Research Work: </span>
+                            {% elif topic.docType == "Merged Summary" %}
+                                <span>Merged Summary: </span>
+                            {% endif %}
+                            <input type="text" name="name" id="name" placeholder="name...." value="{{request.session.name}}" required>
+                        </h2>
+                            <textarea name="description" id="description" class="form-control" cols="30" rows="10" placeholder="Description.....(optional)">{{request.session.description}}</textarea>     
+                            <button type="submit">Edit</button>
+                        </form>
+                    {% else %}
+                        <h2>
+                            {% if topic.docType == "Folder" %}
+                                <a href="{% url 'folder' topic.id %}"><span>Folder: </span>
+                            {% elif topic.docType == "Research Work" %}
+                                <a href="{% url 'researchWork' topic.id %}"><span>Research Work: </span>
+                            {% elif topic.docType == "Merged Summary" %}
+                                <a href="{% url 'mergedSummary' topic.id %}"><span>Merged Summary: </span>
+                            {% endif %}
+                            {{topic.name}}</a></h2>
+                        <h4>{{topic.description}}</h4>
+                    {% endif %}
+                    <div class="d-flex">
+                        <form action="{% url 'moveTopic' %}" method="get">
+                            <input type="hidden" name="id" value="{{topic.id}}">
+                            {% if folderTopic %}
+                                <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
+                            {% endif %}
+                            <button class="btn btn-primary mx-1" type="submit">Cut</button>
+                        </form>
+
+                        <form action="{% url 'deleteTopic' %}" method="GET">
+                            {% if folderTopic %}
+                                <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
+                            {% endif %}
+                            <input type="hidden" name="id" value="{{topic.id}}">
+                            <button class="btn btn-primary mx-2" type="submit" onclick="return confirm('Are you sure you want to delete this Topic?')">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
         {% endif %}
-    </div>
 
-    {% if searchResults %}
-    <div style="background-color: aqua;">
-        <h1>Search Results</h1>
-        {% for topic in searchResults %}
-            <div id="{{topic.id}}{{topic.name}}">
-                {% if request.session.editId|add:0 == topic.id %}
-                    <form action="{% url 'editTopic' %}#{{topic.id}}{{topic.name}}" method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="id" value="{{topic.id}}"></label>
-                        <h2>{% if topic.docType == "Folder" %}
-                            <span>Folder: </span>
-                        {% elif topic.docType == "Research Work" %}
-                            <span>Research Work: </span>
-                        {% elif topic.docType == "Merged Summary" %}
-                            <span>Merged Summary: </span>
-                        {% endif %}
-                        <input type="text" name="name" id="name" placeholder="name...." value="{{request.session.name}}" required>
-                    </h2>
-                        <textarea name="description" id="description" class="form-control" cols="30" rows="10" placeholder="Description.....(optional)">{{request.session.description}}</textarea>     
-                        <button type="submit">Edit</button>
-                    </form>
-                {% else %}
-                    <h2>
-                        {% if topic.docType == "Folder" %}
-                            <a href="{% url 'folder' topic.id %}"><span>Folder: </span>
-                        {% elif topic.docType == "Research Work" %}
-                            <a href="{% url 'researchWork' topic.id %}"><span>Research Work: </span>
-                        {% elif topic.docType == "Merged Summary" %}
-                            <a href="{% url 'mergedSummary' topic.id %}"><span>Merged Summary: </span>
-                        {% endif %}
-                        {{topic.name}}</a></h2>
-                    <h4>{{topic.description}}</h4>
-                {% endif %}
-
-                <form action="{% url 'moveTopic' %}" method="get">
-                    <input type="hidden" name="id" value="{{topic.id}}">
-                    {% if folderTopic %}
-                        <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
+        <div class="row">
+            {% for topic in topics %}
+                <div class="card p-2 mb-2" style="width: 100%;box-shadow:0 4px 8px rgba(0, 0, 0, 0.2);" id="{{topic.id}}{{topic.name}}">
+                    {% if request.session.editId|add:0 == topic.id %}
+                        <form action="{% url 'editTopic' %}#{{topic.id}}{{topic.name}}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value="{{topic.id}}"></label>
+                            {% if folderTopic %}
+                                <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
+                            {% endif %}
+                            <h2>{% if topic.docType == "Folder" %}
+                                <span>Folder: </span>
+                            {% elif topic.docType == "Research Work" %}
+                                <span>Research Work: </span>
+                            {% elif topic.docType == "Merged Summary" %}
+                                <span>Merged Summary: </span>
+                            {% endif %}
+                            <input type="text" name="name" id="name" placeholder="name...." value="{{request.session.name}}" required>
+                        </h2>
+                            <textarea name="description" id="description" class="form-control" cols="30" rows="10" placeholder="Description.....(optional)">{{request.session.description}}</textarea>     
+                            <button type="submit">Edit</button>
+                        </form>
+                    {% else %}
+                        <h2 class="card-title">
+                            {% if topic.docType == "Folder" %}
+                                <a href="{% url 'folder' topic.id %}"><span>Folder: </span>
+                            {% elif topic.docType == "Research Work" %}
+                                <a href="{% url 'researchWork' topic.id %}"><span>Research Work: </span>
+                            {% elif topic.docType == "Merged Summary" %}
+                                <a href="{% url 'mergedSummary' topic.id %}"><span>Merged Summary: </span>
+                            {% endif %}
+                            {{topic.name}}</a>
+                        </h2>
+                            <h6 style="display: inline;">Created on: {{topic.CreatedAt}}</h6><br>
+                            <h6 style="display: inline;">Last Modified on: {{topic.LastModifiedAt}}</h6>
+                        <h4>{{topic.description}}</h4>
                     {% endif %}
-                    <button type="submit">Cut</button>
-                </form>
-
-                <form action="{% url 'deleteTopic' %}" method="GET">
-                    {% if folderTopic %}
-                        <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
+                    <div class="d-flex">
+                    {% if request.session.editId|add:0 != topic.id %}
+                        <form action="{% url 'editTopic' %}#{{topic.id}}{{topic.name}}" method="GET">
+                            <input type="hidden" name="id" value="{{topic.id}}">
+                            {% if folderTopic %}
+                                <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
+                            {% endif %}
+                            <button class="btn btn-primary ml-1" type="submit">Edit</button>
+                        </form>
                     {% endif %}
-                    <input type="hidden" name="id" value="{{topic.id}}">
-                    <button type="submit" onclick="return confirm('Are you sure you want to delete this Topic?')">Delete</button>
-                </form>
-            </div>
-        {% endfor %}
-    </div>
-    {% endif %}
 
-    <div>
-        {% for topic in topics %}
-            <div id="{{topic.id}}{{topic.name}}">
-                {% if request.session.editId|add:0 == topic.id %}
-                    <form action="{% url 'editTopic' %}#{{topic.id}}{{topic.name}}" method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="id" value="{{topic.id}}"></label>
-                        {% if folderTopic %}
-                            <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
-                        {% endif %}
-                        <h2>{% if topic.docType == "Folder" %}
-                            <span>Folder: </span>
-                        {% elif topic.docType == "Research Work" %}
-                            <span>Research Work: </span>
-                        {% elif topic.docType == "Merged Summary" %}
-                            <span>Merged Summary: </span>
-                        {% endif %}
-                        <input type="text" name="name" id="name" placeholder="name...." value="{{request.session.name}}" required>
-                    </h2>
-                        <textarea name="description" id="description" class="form-control" cols="30" rows="10" placeholder="Description.....(optional)">{{request.session.description}}</textarea>     
-                        <button type="submit">Edit</button>
-                    </form>
-                {% else %}
-                    <h2>
-                        {% if topic.docType == "Folder" %}
-                            <a href="{% url 'folder' topic.id %}"><span>Folder: </span>
-                        {% elif topic.docType == "Research Work" %}
-                            <a href="{% url 'researchWork' topic.id %}"><span>Research Work: </span>
-                        {% elif topic.docType == "Merged Summary" %}
-                            <a href="{% url 'mergedSummary' topic.id %}"><span>Merged Summary: </span>
-                        {% endif %}
-                        {{topic.name}}</a></h2>
-                        <h6 style="display: inline;">Created on: {{topic.CreatedAt}}</h6><br>
-                        <h6 style="display: inline;">Last Modified on: {{topic.LastModifiedAt}}</h6>
-                    <h4>{{topic.description}}</h4>
-                {% endif %}
-                {% if request.session.editId|add:0 != topic.id %}
-                    <form action="{% url 'editTopic' %}#{{topic.id}}{{topic.name}}" method="GET">
+                    <form  action="{% url 'moveTopic' %}#{{topic.id}}{{topic.name}}" method="get">
                         <input type="hidden" name="id" value="{{topic.id}}">
                         {% if folderTopic %}
                             <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
                         {% endif %}
-                        <button type="submit">Edit</button>
+                        <button class="btn btn-primary ml-1" type="submit">Cut</button>
                     </form>
-                {% endif %}
 
-                <form action="{% url 'moveTopic' %}#{{topic.id}}{{topic.name}}" method="get">
-                    <input type="hidden" name="id" value="{{topic.id}}">
-                    {% if folderTopic %}
-                        <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
-                    {% endif %}
-                    <button type="submit">Cut</button>
-                </form>
-
-                <form action="{% url 'deleteTopic' %}" method="GET">
-                    <input type="hidden" name="id" value="{{topic.id}}">
-                    {% if folderTopic %}
-                        <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
-                    {% endif %}
-                    <button type="submit" onclick="return confirm('Are you sure you want to delete this Topic?')">Delete</button>
-                </form>
-            </div>
-        {% endfor %}
+                    <form action="{% url 'deleteTopic' %}" method="GET">
+                        <input type="hidden" name="id" value="{{topic.id}}">
+                        {% if folderTopic %}
+                            <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
+                        {% endif %}
+                        <button class="btn btn-primary ml-1" type="submit" onclick="return confirm('Are you sure you want to delete this Topic?')">Delete</button>
+                    </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>

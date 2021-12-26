@@ -9,163 +9,173 @@
     <title>{{researchWorkTopic.name}}</title>
 </head>
 <body>
-    <h1>Research Manager</h1>
-    <h2>{{request.user.last_name}}</h2>
-    <h1>{{researchWorkTopic.name}}</h1>
-    <h3>
-        <a href="{% url 'home' %}">home</a>
-        {% for directory in path %}
-        / <a href="{% url 'folder' directory.id %}">{{directory.name}}</a>
-        {% endfor %}
-    </h3>
-   
-    <h2><a href="{% url 'logout' %}">Log Out</a></h2>
-    <p>link format is ;;;name::link;; for example: ;;;google::www.google.com;;</p>
-    <div id="work">
-        {% if request.session.successMessage %}
-            <h3 style="color: green;"><span style="color: orange;">Last Activity Status: </span>{{request.session.successMessage}}</h3>
-        {% elif request.session.failMessage %}
-            <h3 style="color: red;"><span style="color: orange;">Last Activity Status: </span>{{request.session.failMessage}}</h3>
-        {% endif %}
-        <h2>{{researchWorkTopic.name}} Research 
-            {% if researchWorkDuplicate %}
-                Duplicate - Reason: {{researchWorkDuplicate.reason}}
+    <div class="container">
+        <div class="d-flex justify-content-between">
+            <h1>Research Manager</h1>
+            <h2>{{request.user.last_name}}</h2>
+        </div>
+        <div class="d-flex justify-content-between">
+            <h1 class="text-danger">{{researchWorkTopic.name}}</h1>
+            <h2><a href="{% url 'logout' %}">Log Out</a></h2>
+        </div>
+        <h3>
+            <a href="{% url 'home' %}">home</a>
+            {% for directory in path %}
+            / <a href="{% url 'folder' directory.id %}">{{directory.name}}</a>
+            {% endfor %}
+        </h3>
+    
+        <p>link format is ;;;name::link;; for example: ;;;google::www.google.com;;</p>
+        <div id="work">
+            {% if request.session.successMessage %}
+                <h6 style="color: green;"><span style="color: orange;">Last Activity Status: </span>{{request.session.successMessage}}</h6>
+            {% elif request.session.failMessage %}
+                <h6 style="color: red;"><span style="color: orange;">Last Activity Status: </span>{{request.session.failMessage}}</h6>
             {% endif %}
-                <form action="{% url 'visitLink' %}" method="get" target="_blank" style="display: inline;">
-                    <select name="link" id="link">
-                        {% for link in links %}
-                            <option value="{{link.url}}">{{link.name}}</option>
-                        {% endfor %}
-                    </select>
-                    <button type="submit">Visit</button>
-                </form>
-        </h2>
-        <form action="{% url 'editResearch' researchWorkTopic.id %}#work" method="post">
-        {% csrf_token %}
-        {% if researchWorkDuplicate %}
-            <input type="hidden" name="researchWorkDuplicateId" value="{{researchWorkDuplicate.id}}">
-            <textarea name="researchWork" id="researchWork" class="form-control" rows="16" placeholder="No Duplicate Research Done yet......." style="width: 100%;">{{researchWorkDuplicate.work}}</textarea>
-        {% else %}
-            <textarea name="researchWork" id="researchWork" class="form-control" rows="16" placeholder="No Research Done yet......." style="width: 100%;">{{researchWork.work}}</textarea>
-        {% endif %}
-
-            <h2>{{researchWorkTopic.name}} Summary 
-                {% if summaryDuplicate %}
-                    Duplicate - Reason: {{summaryDuplicate.reason}}
+            <h2>{{researchWorkTopic.name}} Research 
+                {% if researchWorkDuplicate %}
+                    Duplicate - Reason: {{researchWorkDuplicate.reason}}
                 {% endif %}
-                <button type="submit">Save</button>
+                    <form action="{% url 'visitLink' %}" method="get" target="_blank" style="display: inline;">
+                        <select class="form-control" style="display: inline; width: auto;" name="link" id="link">
+                            {% for link in links %}
+                                <option value="{{link.url}}">{{link.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-primary" type="submit">Visit</button>
+                    </form>
             </h2>
-            {% if summaryDuplicate %}
-                <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
-                <input type="hidden" name="reason" value="{{summaryDuplicate.reason}}">
-                <textarea name="researchSummary" class="form-control" id="researchSummary" placeholder="Summary duplicate has not yet been done......." rows="16" style="width: 100%;">{{summaryDuplicate.work}}</textarea>
-            {% else %}
-                <textarea name="researchSummary" class="form-control" id="researchSummary" placeholder="Summary has not yet been done......." rows="16" style="width: 100%;">{{researchWork.researchSummary.work}}</textarea>
-            {% endif %}
-
-        </form>
-        
-        <form action="{% url 'duplicateResearch' researchWorkTopic.id %}#work" method="post">
+            <form action="{% url 'editResearch' researchWorkTopic.id %}#work" method="post">
             {% csrf_token %}
-            {% if summaryDuplicate %}
-                <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
-            {% endif %}
             {% if researchWorkDuplicate %}
                 <input type="hidden" name="researchWorkDuplicateId" value="{{researchWorkDuplicate.id}}">
+                <textarea name="researchWork" id="researchWork" class="form-control" rows="10" placeholder="No Duplicate Research Done yet......." style="width: 100%;">{{researchWorkDuplicate.work}}</textarea>
+            {% else %}
+                <textarea name="researchWork" id="researchWork" class="form-control" rows="10" placeholder="No Research Done yet......." style="width: 100%;">{{researchWork.work}}</textarea>
             {% endif %}
-            <label for="reason">Reason:</label>
-            <input type="text" name="reason" id="reason">
-            <button type="submit">Duplicate Research</button>
-        </form>
 
-        {% if researchWork.researchSummary %}
-            <form action="{% url 'duplicateSummary' researchWorkTopic.id %}#work" method="post">
-                {% csrf_token %}
+                <h2>{{researchWorkTopic.name}} Summary 
+                    {% if summaryDuplicate %}
+                        Duplicate - Reason: {{summaryDuplicate.reason}}
+                    {% endif %}
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </h2>
                 {% if summaryDuplicate %}
                     <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
+                    <input type="hidden" name="reason" value="{{summaryDuplicate.reason}}">
+                    <textarea name="researchSummary" class="form-control" id="researchSummary" placeholder="Summary duplicate has not yet been done......." rows="10" style="width: 100%;">{{summaryDuplicate.work}}</textarea>
+                {% else %}
+                    <textarea name="researchSummary" class="form-control" id="researchSummary" placeholder="Summary has not yet been done......." rows="10" style="width: 100%;">{{researchWork.researchSummary.work}}</textarea>
                 {% endif %}
-                {% if researchWorkDuplicate %}
-                    <input type="hidden" name="researchWorkDuplicateId" value="{{researchWorkDuplicate.id}}">
-                {% endif %}
-                <label for="reason">Reason:</label>
-                <input type="text" name="reason" id="reason">
-                <button type="submit">Duplicate Summary</button>
+
             </form>
-        {% endif %}
-        
-        <form action="{% url 'switchResearch' researchWorkTopic.id %}#work" method="get" style="display: inline;">
-            <span>Switch Research:</span>
-            {% if summaryDuplicate %}
-                <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
-            {% endif %}
-            <select name="research" id="research">
-                <option value="original" style="color: blueviolet;">Original Research</option>
-                {% for research in researches %}
-                    <option value="{{research.id}}">{{research.reason}}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">Visit</button>
-        </form>
-
-        <form action="{% url 'switchSummary' researchWorkTopic.id %}#work" method="get" style="display: inline;">
-            <span>Switch Summary:</span>
-            {% if researchWorkDuplicate %}
-                <input type="hidden" name="duplicateId" value="{{researchWorkDuplicate.id}}">
-            {% endif %}
-            <select name="summary" id="summary">
-                <option value="original" style="color: blueviolet;">Original Summary</option>
-                {% for summary in summaries %}
-                    <option value="{{summary.id}}">{{summary.reason}}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">Visit</button>
-        </form>
-
-        <br>
-        
-        <form action="{% url 'deleteResearch' researchWorkTopic.id %}#work" method="get" style="display: inline;">
-            <span>Delete Research Duplicate:</span>
-            {% if summaryDuplicate %}
-                <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
-            {% endif %}
-            {% if researchWorkDuplicate %}
-                <input type="hidden" name="researchWorkDuplicateId" value="{{researchWorkDuplicate.id}}">
-            {% endif %}
-            <select name="research" id="research">
-                {% for research in researches %}
-                    {% if researchWorkDuplicate %}
-                        {% if research != researchWorkDuplicate %}
-                            <option value="{{research.id}}">{{research.reason}}</option>
+            
+            <div class="d-md-flex justify-content-between">
+                <div class="p-1 m-1" style="border: 1px solid silver; border-radius: 5px;">
+                    <form action="{% url 'switchSummary' researchWorkTopic.id %}#work" method="get" style="display: inline;">
+                        <span>Switch Summary:</span>
+                        {% if researchWorkDuplicate %}
+                            <input type="hidden" name="duplicateId" value="{{researchWorkDuplicate.id}}">
                         {% endif %}
-                    {% else %}
-                        <option value="{{research.id}}">{{research.reason}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-            <button type="submit" onclick="return confirm('Are you sure you want to delete this Topic?')">Delete</button>
-        </form>
+                        <select name="summary" class="form-control" style="display: inline; width: auto;" id="summary">
+                            <option value="original" style="color: blueviolet;">Original Summary</option>
+                            {% for summary in summaries %}
+                                <option value="{{summary.id}}">{{summary.reason}}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-primary" type="submit">Visit</button>
+                    </form>
 
-        <form action="{% url 'deleteSummary' researchWorkTopic.id %}#work" method="get" style="display: inline;">
-            <span>Delete Summary:</span>
-            {% if researchWorkDuplicate %}
-                <input type="hidden" name="duplicateId" value="{{researchWorkDuplicate.id}}">
-            {% endif %}
-            {% if summaryDuplicate %}
-                <input type="hidden" name="summaryDuplicateId" value="{{summaryDuplicate.id}}">
-            {% endif %}
-            <select name="summary" id="summary">
-                {% for summary in summaries %}
-                    {% if summaryDuplicate %}
-                        {% if summary != summaryDuplicate %}
-                            <option value="{{summary.id}}">{{summary.reason}}</option>   
+                    <form action="{% url 'duplicateResearch' researchWorkTopic.id %}#work" method="post">
+                        {% csrf_token %}
+                        {% if summaryDuplicate %}
+                            <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
                         {% endif %}
-                    {% else %}
-                        <option value="{{summary.id}}">{{summary.reason}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-            <button type="submit" onclick="return confirm('Are you sure you want to delete this Topic?')">Delete</button>
-        </form>
+                        {% if researchWorkDuplicate %}
+                            <input type="hidden" name="researchWorkDuplicateId" value="{{researchWorkDuplicate.id}}">
+                        {% endif %}
+                        <label for="reason">Reason:</label>
+                        <input class="form-control" style="display: inline;" type="text" name="reason" id="reason">
+                        <button class="btn btn-primary mt-1" type="submit">Duplicate Research</button>
+                    </form>
+
+                    <form action="{% url 'deleteResearch' researchWorkTopic.id %}#work" method="get" style="display: inline;">
+                        <span>Delete Research Duplicate:</span>
+                        {% if summaryDuplicate %}
+                            <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
+                        {% endif %}
+                        {% if researchWorkDuplicate %}
+                            <input type="hidden" name="researchWorkDuplicateId" value="{{researchWorkDuplicate.id}}">
+                        {% endif %}
+                        <select name="research" class="form-control" style="display: inline; width: auto;" id="research">
+                            {% for research in researches %}
+                                {% if researchWorkDuplicate %}
+                                    {% if research != researchWorkDuplicate %}
+                                        <option value="{{research.id}}">{{research.reason}}</option>
+                                    {% endif %}
+                                {% else %}
+                                    <option value="{{research.id}}">{{research.reason}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-primary" type="submit" onclick="return confirm('Are you sure you want to delete this Topic?')">Delete</button>
+                    </form>
+                </div>
+                
+                <div class="p-1 m-1" style="border: 1px solid silver; border-radius: 5px;">
+                {% if researchWork.researchSummary %}
+                    <form action="{% url 'switchResearch' researchWorkTopic.id %}#work" method="get" style="display: inline;">
+                        <span>Switch Research:</span>
+                        {% if summaryDuplicate %}
+                            <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
+                        {% endif %}
+                        <select name="research" class="form-control" style="display: inline; width: auto;" id="research">
+                            <option value="original" style="color: blueviolet;">Original Research</option>
+                            {% for research in researches %}
+                                <option value="{{research.id}}">{{research.reason}}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-primary" type="submit">Visit</button>
+                    </form>
+
+                    <form action="{% url 'duplicateSummary' researchWorkTopic.id %}#work" method="post">
+                        {% csrf_token %}
+                        {% if summaryDuplicate %}
+                            <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
+                        {% endif %}
+                        {% if researchWorkDuplicate %}
+                            <input type="hidden" name="researchWorkDuplicateId" value="{{researchWorkDuplicate.id}}">
+                        {% endif %}
+                        <label for="reason">Reason:</label>
+                        <input type="text" name="reason" class="form-control" style="display: inline;" id="reason">
+                        <button class="btn btn-primary mt-1" type="submit">Duplicate Summary</button>
+                    </form>
+                {% endif %}
+
+                    <form action="{% url 'deleteSummary' researchWorkTopic.id %}#work" method="get" style="display: inline;">
+                        <span>Delete Summary:</span>
+                        {% if researchWorkDuplicate %}
+                            <input type="hidden" name="duplicateId" value="{{researchWorkDuplicate.id}}">
+                        {% endif %}
+                        {% if summaryDuplicate %}
+                            <input type="hidden" name="summaryDuplicateId" value="{{summaryDuplicate.id}}">
+                        {% endif %}
+                        <select name="summary" class="form-control" style="display: inline; width: auto;" id="summary">
+                            {% for summary in summaries %}
+                                {% if summaryDuplicate %}
+                                    {% if summary != summaryDuplicate %}
+                                        <option value="{{summary.id}}">{{summary.reason}}</option>   
+                                    {% endif %}
+                                {% else %}
+                                    <option value="{{summary.id}}">{{summary.reason}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-primary" type="submit" onclick="return confirm('Are you sure you want to delete this Topic?')">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>
