@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models.aggregates import Avg, Max, Sum
 from django.db.models.deletion import CASCADE
 from django.db.models.query_utils import PathInfo
-from datetime import timedelta
+from datetime import timedelta, datetime
 import math
 import json
 
@@ -16,6 +16,8 @@ class Topic(models.Model):
     parentFolder = models.ForeignKey("Folder", related_name = "topics",null=True,blank=True,on_delete=models.CASCADE)
     researcher = models.ForeignKey(User, related_name="topics", on_delete=models.CASCADE)
     docType = models.CharField(max_length=50)
+    CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
+    LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
         return f"{self.name} {self.docType}"
@@ -23,6 +25,8 @@ class Topic(models.Model):
 
 class Folder(models.Model):
     topic = models.OneToOneField("Topic", related_name = "folder", on_delete=models.CASCADE)
+    CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
+    LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
         return f"{self.topic.name}"
@@ -30,6 +34,8 @@ class Folder(models.Model):
 class ResearchWork(models.Model):
     topic = models.OneToOneField("Topic", related_name = "ResearchWork", on_delete=models.CASCADE)
     work = models.TextField(default="")
+    CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
+    LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
         return f"{self.topic.name}"
@@ -38,6 +44,8 @@ class ResearchWorkDuplicate(models.Model):
     reason = models.TextField()
     work = models.TextField(default="")
     originalResearchWork = models.ForeignKey("ResearchWork", related_name="researchWorkDuplicates", on_delete=models.CASCADE)
+    CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
+    LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
         return f"{self.originalResearchWork.topic.name} Duplicated, Reason: {self.reason}"
@@ -47,6 +55,8 @@ class Link(models.Model):
     url = models.TextField()
     researchWork = models.ForeignKey("ResearchWork", related_name="links", on_delete=models.CASCADE,null=True,blank=True)
     researchWorkDuplicate = models.ForeignKey("ResearchWorkDuplicate", related_name="links", on_delete=models.CASCADE,null=True,blank=True)
+    CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
+    LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
         return f"{self.name}"
@@ -54,6 +64,8 @@ class Link(models.Model):
 class ResearchSummary(models.Model):
     work = models.TextField(default="")
     researchWork = models.OneToOneField("ResearchWork", related_name="researchSummary", on_delete=models.CASCADE)
+    CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
+    LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
         return f"{self.researchWork.topic.name}"
@@ -62,6 +74,8 @@ class ResearchSummaryDuplicate(models.Model):
     reason = models.TextField()
     work = models.TextField(default="")
     originalResearchSummary = models.ForeignKey("ResearchSummary", related_name="researchSummaryDuplicates", on_delete=models.CASCADE)
+    CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
+    LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
         return f"{self.originalResearchSummary.researchWork.topic.name} Duplicated, Reason: {self.reason}"
@@ -75,6 +89,8 @@ class MergedSummary(models.Model):
     attachedResearchWorkDuplicates = models.ManyToManyField("ResearchWorkDuplicate", related_name="linkedMergedSummaries",blank=True)
     attachedResearchSummaryDuplicates = models.ManyToManyField("ResearchSummaryDuplicate", related_name="linkedMergedSummaries",blank=True)
     attachedMergedSummaryDuplicates = models.ManyToManyField("MergedSummaryDuplicate", related_name="linkedMergedSummaries",blank=True)
+    CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
+    LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
         return f"{self.topic.name}"
@@ -83,6 +99,8 @@ class MergedSummaryDuplicate(models.Model):
     reason = models.TextField()
     work = models.TextField(default="")
     originalMergedSummary = models.ForeignKey("MergedSummary", related_name="mergedSummaryDuplicates", on_delete=models.CASCADE)
-    
+    CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
+    LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
+
     def __str__(self):
         return f"{self.originalMergedSummary.topic.name} duplicated, Reason: {self.reason}"

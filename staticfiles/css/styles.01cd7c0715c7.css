@@ -1,0 +1,40 @@
+body{
+    overflow-x: hidden;
+}
+
+#nav{
+    background-image: url("../images/210912.a68b71ab41fc.jpg");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+
+    color: azure;
+
+}
+
+.profile-card{
+    @media (min-width: 0px){
+        width: 100%;
+        height: fit-content;
+    }
+    
+    @media (min-width: 992px){
+        width: 450px;
+        height: 200px;
+    }
+}
+
+.bg-purple{
+    background-color: rgb(245, 191, 245) !important;
+}
+
+.bg-gold{
+    background-color: rgb(255, 229, 195) !important;
+}
+
+.text-purple{
+    color: rgb(163, 24, 163) !important;
+}
+
+.text-gold{
+    color: rgb(196, 139, 33) !important;
+}
