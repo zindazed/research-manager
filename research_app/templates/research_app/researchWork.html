@@ -42,9 +42,9 @@
         {% csrf_token %}
         {% if researchWorkDuplicate %}
             <input type="hidden" name="researchWorkDuplicateId" value="{{researchWorkDuplicate.id}}">
-            <textarea name="researchWork" id="researchWork" placeholder="No Duplicate Research Done yet.......">{{researchWorkDuplicate.work}}</textarea>
+            <textarea name="researchWork" id="researchWork" rows="16" placeholder="No Duplicate Research Done yet......." style="width: 100%;">{{researchWorkDuplicate.work}}</textarea>
         {% else %}
-            <textarea name="researchWork" id="researchWork" placeholder="No Research Done yet.......">{{researchWork.work}}</textarea>
+            <textarea name="researchWork" id="researchWork" rows="16" placeholder="No Research Done yet......." style="width: 100%;">{{researchWork.work}}</textarea>
         {% endif %}
 
             <h2>{{researchWorkTopic.name}} Summary 
