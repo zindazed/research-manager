@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'bootstrap4/css/bootstrap.css' %}">
     <title>{{researchWorkTopic.name}}</title>
 </head>
 <body>
@@ -42,9 +43,9 @@
         {% csrf_token %}
         {% if researchWorkDuplicate %}
             <input type="hidden" name="researchWorkDuplicateId" value="{{researchWorkDuplicate.id}}">
-            <textarea name="researchWork" id="researchWork" rows="16" placeholder="No Duplicate Research Done yet......." style="width: 100%;">{{researchWorkDuplicate.work}}</textarea>
+            <textarea name="researchWork" id="researchWork" class="form-control" rows="16" placeholder="No Duplicate Research Done yet......." style="width: 100%;">{{researchWorkDuplicate.work}}</textarea>
         {% else %}
-            <textarea name="researchWork" id="researchWork" rows="16" placeholder="No Research Done yet......." style="width: 100%;">{{researchWork.work}}</textarea>
+            <textarea name="researchWork" id="researchWork" class="form-control" rows="16" placeholder="No Research Done yet......." style="width: 100%;">{{researchWork.work}}</textarea>
         {% endif %}
 
             <h2>{{researchWorkTopic.name}} Summary 
@@ -56,9 +57,9 @@
             {% if summaryDuplicate %}
                 <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
                 <input type="hidden" name="reason" value="{{summaryDuplicate.reason}}">
-                <textarea name="researchSummary" id="researchSummary" placeholder="Summary duplicate has not yet been done......." rows="16" style="width: 100%;">{{summaryDuplicate.work}}</textarea>
+                <textarea name="researchSummary" class="form-control" id="researchSummary" placeholder="Summary duplicate has not yet been done......." rows="16" style="width: 100%;">{{summaryDuplicate.work}}</textarea>
             {% else %}
-                <textarea name="researchSummary" id="researchSummary" placeholder="Summary has not yet been done......." rows="16" style="width: 100%;">{{researchWork.researchSummary.work}}</textarea>
+                <textarea name="researchSummary" class="form-control" id="researchSummary" placeholder="Summary has not yet been done......." rows="16" style="width: 100%;">{{researchWork.researchSummary.work}}</textarea>
             {% endif %}
 
         </form>

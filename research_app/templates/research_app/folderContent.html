@@ -85,7 +85,7 @@
                         {% endif %}
                         <input type="text" name="name" id="name" placeholder="name...." value="{{request.session.name}}" required>
                     </h2>
-                        <textarea name="description" id="description" cols="30" rows="10" placeholder="Description.....(optional)">{{request.session.description}}</textarea>     
+                        <textarea name="description" id="description" class="form-control" cols="30" rows="10" placeholder="Description.....(optional)">{{request.session.description}}</textarea>     
                         <button type="submit">Edit</button>
                     </form>
                 {% else %}
@@ -140,7 +140,7 @@
                         {% endif %}
                         <input type="text" name="name" id="name" placeholder="name...." value="{{request.session.name}}" required>
                     </h2>
-                        <textarea name="description" id="description" cols="30" rows="10" placeholder="Description.....(optional)">{{request.session.description}}</textarea>     
+                        <textarea name="description" id="description" class="form-control" cols="30" rows="10" placeholder="Description.....(optional)">{{request.session.description}}</textarea>     
                         <button type="submit">Edit</button>
                     </form>
                 {% else %}

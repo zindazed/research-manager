@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'bootstrap4/css/bootstrap.css' %}">
     <title>{{mergedSummaryTopic.name}}</title>
 </head>
 <body>
@@ -74,7 +75,7 @@
         {% endif %}
         <input type="hidden" name="docType" value="{{type}}">
         <input type="hidden" name="workId" value="{{work.id}}">
-        <textarea name="work" id="work" rows="16" placeholder="No Duplicate Research Done yet......." style="width: 100%;">{{work.work}}</textarea>
+        <textarea name="work" id="work" rows="16" class="form-control" placeholder="No Duplicate Research Done yet......." style="width: 100%;">{{work.work}}</textarea>
 
         <h2>{{mergedSummaryTopic.name}} Merged Summary 
             {% if summaryDuplicate %}
@@ -85,9 +86,9 @@
         {% if summaryDuplicate %}
             <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
             <input type="hidden" name="reason" value="{{summaryDuplicate.reason}}">
-            <textarea name="mergedSummary" id="mergedSummary" placeholder="Summary duplicate has not yet been done......." rows="16" style="width: 100%;">{{summaryDuplicate.work}}</textarea>
+            <textarea name="mergedSummary" id="mergedSummary" class="form-control" placeholder="Summary duplicate has not yet been done......." rows="16" style="width: 100%;">{{summaryDuplicate.work}}</textarea>
         {% else %}
-            <textarea name="mergedSummary" id="mergedSummary" placeholder="Summary has not yet been done......." rows="16" style="width: 100%;">{{mergedSummary.work}}</textarea>
+            <textarea name="mergedSummary" id="mergedSummary" class="form-control" placeholder="Summary has not yet been done......." rows="16" style="width: 100%;">{{mergedSummary.work}}</textarea>
         {% endif %}
         </form>
     {% endif %}  
