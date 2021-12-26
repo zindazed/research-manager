@@ -9,19 +9,27 @@
     <title>SignUp</title>
 </head>
 <body>
-    <h1>Research Manager</h1>
-    <h6><a href="{% url 'login' %}">Log In</a></h6>
-    <h2>SignUp</h2>
-    {% if failMessage %}
-        <h3 style="color: red;"><span style="color: orange;">Last Activity Status: </span>{{failMessage}}</h3>
-    {% endif %}
-    <form action="{% url 'signup' %}" method="post">
-        {% csrf_token %}
-        <label for="username" >Username: <input type="text" name="username" id="username" required></label>
-        <label for="email">Email: <input type="email" name="email" id="email" required></label>
-        <label for="password">Password: <input type="password" name="password" id="password" required></label>
-        <label for="cpassword">Confirm Password: <input type="password" name="cpassword" id="cpassword" required></label>
-        <button type="submit">SignUp</button>
-    </form>
+    <div class="text-center">
+        <h1 class="text-primary" >Research Manager</h1>
+        <h2>SignUp</h2>
+    </div>
+    <div style="height:60vh" class="container d-flex justify-content-center align-items-center">
+        <div>
+            {% if failMessage %}
+                <h3 style="color: red;"><span style="color: orange;">Last Activity Status: </span>{{failMessage}}</h3>
+            {% endif %}
+            <form action="{% url 'signup' %}" method="post">
+                {% csrf_token %}
+                <label for="username" >Username: </label><input class="form-control" type="text" name="username" id="username" required>
+                <label for="email">Email: </label><input class="form-control" type="email" name="email" id="email" required>
+                <label for="password">Password: </label><input class="form-control" type="password" name="password" id="password" required>
+                <label for="cpassword">Confirm Password: </label><input class="form-control" type="password" name="cpassword" id="cpassword" required>
+                <div class="text-center">
+                    <button class="btn btn-primary" type="submit">SignUp</button>
+                </div>
+            </form>
+            <p class="text-center mt-2">I already have an account, click <span class="text-primary"><a style="font-style: italic;" href="{% url 'login' %}">here</a></span> to login</p>
+        </div>
+    </div>
 </body>
 </html>
