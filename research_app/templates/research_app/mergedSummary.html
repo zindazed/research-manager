@@ -23,6 +23,7 @@
             {% for directory in path %}
             / <a href="{% url 'folder' directory.id %}">{{directory.name}}</a>
             {% endfor %}
+            /{{mergedSummaryTopic.name}}
         </h3>
 
         <div>

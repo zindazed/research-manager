@@ -266,7 +266,6 @@ def search(request,topicId):
         the_topic = topic
         folder = Folder.objects.get(topic = topic)
         path = []
-        path.append(topic)
         while True:
             if topic.parentFolder:
                 path.append(topic.parentFolder.topic)
@@ -345,7 +344,6 @@ def folder(request,topicId):
     the_topic = topic
     folder = Folder.objects.get(topic = topic)
     path = []
-    path.append(topic)
     while True:
         if topic.parentFolder:
             path.append(topic.parentFolder.topic)
@@ -366,7 +364,6 @@ def researchWork(request,topicId):
     the_topic = topic
     researchWork = ResearchWork.objects.get(topic = topic)
     path = []
-    path.append(topic)
     while True:
         if topic.parentFolder:
             path.append(topic.parentFolder.topic)
@@ -871,7 +868,6 @@ def mergedSearch(request,topicId):
         the_topic = topic
         mergedSummary = MergedSummary.objects.get(topic = topic)
         path = []
-        path.append(topic)
         while True:
             if topic.parentFolder:
                 path.append(topic.parentFolder.topic)
@@ -1085,7 +1081,6 @@ def mergedSummary(request,topicId):
     the_topic = topic
     mergedSummary = MergedSummary.objects.get(topic = topic)
     path = []
-    path.append(topic)
     while True:
         if topic.parentFolder:
             path.append(topic.parentFolder.topic)
@@ -1428,7 +1423,6 @@ def researchWorkDuplicate(request, duplicateId):
     the_topic = topic
     researchWork = ResearchWork.objects.get(topic = topic)
     path = []
-    path.append(topic)
     while True:
         if topic.parentFolder:
             path.append(topic.parentFolder.topic)
@@ -1472,7 +1466,6 @@ def researchSummaryDuplicate(request, duplicateId):
     the_topic = topic
     researchWork = ResearchWork.objects.get(topic = topic)
     path = []
-    path.append(topic)
     while True:
         if topic.parentFolder:
             path.append(topic.parentFolder.topic)

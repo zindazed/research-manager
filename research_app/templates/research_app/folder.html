@@ -16,7 +16,6 @@
         </div>
         <div class="d-flex justify-content-between">
             <h1 class="text-danger">{{folderTopic.name}}</h1>
-            <button class="btn btn-primary" data-toggle="collapse" data-target="#demo">Add New Topic</button>
             <h2><a href="{% url 'logout' %}">Log Out</a></h2>
         </div>
         <h3>
@@ -24,6 +23,7 @@
             {% for directory in path %}
             / <a href="{% url 'folder' directory.id %}">{{directory.name}}</a>
             {% endfor %}
+            /{{folderTopic.name}}
         </h3>
     </div>
     {% include "research_app/folderContent.html" %}

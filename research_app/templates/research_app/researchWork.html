@@ -23,6 +23,7 @@
             {% for directory in path %}
             / <a href="{% url 'folder' directory.id %}">{{directory.name}}</a>
             {% endfor %}
+            /{{researchWorkTopic.name}}
         </h3>
     
         <p>link format is ;;;name::link;; for example: ;;;google::www.google.com;;</p>
