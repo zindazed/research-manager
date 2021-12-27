@@ -11,19 +11,18 @@
 <body>
     <div class="container">
         <div class="d-flex justify-content-between">
-            <h1>Research Manager</h1>
-            <h2>{{request.user.last_name}}</h2>
-        </div>
-        <div class="d-flex justify-content-between">
-            <h1 class="text-danger">{{researchWorkTopic.name}}</h1>
+            <h1>Research</h1>
             <h2><a href="{% url 'logout' %}">Log Out</a></h2>
+        </div>
+        <div class="text-center">
+            <h2 class="text-success">{{request.user.last_name}}</h2>
         </div>
         <h3>
             <a href="{% url 'home' %}">home</a>
             {% for directory in path %}
             / <a href="{% url 'folder' directory.id %}">{{directory.name}}</a>
             {% endfor %}
-            /{{researchWorkTopic.name}}
+            /<span class="text-secondary">{{researchWorkTopic.name}}</span>
         </h3>
         <div id="work">
             {% if request.session.successMessage %}
