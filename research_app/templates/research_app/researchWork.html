@@ -25,8 +25,6 @@
             {% endfor %}
             /{{researchWorkTopic.name}}
         </h3>
-    
-        <p>link format is ;;;name::link;; for example: ;;;google::www.google.com;;</p>
         <div id="work">
             {% if request.session.successMessage %}
                 <h6 style="color: green;"><span style="color: orange;">Last Activity Status: </span>{{request.session.successMessage}}</h6>
@@ -177,6 +175,9 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="container text-center mt-3">
+    <p class="text-info">link format is ;;;name::link;; for example: ;;;google::www.google.com;;</p>
     </div>
 </body>
 </html>
