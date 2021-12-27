@@ -30,7 +30,7 @@
             {% elif request.session.failMessage %}
                 <h6 style="color: red;"><span style="color: orange;">Last Activity Status: </span>{{request.session.failMessage}}</h6>
             {% endif %}
-            <h2>{{researchWorkTopic.name}} Research 
+            <h2>{{researchWorkTopic.name}} Research Work 
                 {% if researchWorkDuplicate %}
                     Duplicate - Reason: {{researchWorkDuplicate.reason}}
                 {% endif %}
@@ -52,7 +52,7 @@
                 <textarea name="researchWork" id="researchWork" class="form-control" rows="10" placeholder="No Research Done yet......." style="width: 100%;">{{researchWork.work}}</textarea>
             {% endif %}
 
-                <h2>{{researchWorkTopic.name}} Summary 
+                <h2>{{researchWorkTopic.name}} Research Summary 
                     {% if summaryDuplicate %}
                         Duplicate - Reason: {{summaryDuplicate.reason}}
                     {% endif %}
