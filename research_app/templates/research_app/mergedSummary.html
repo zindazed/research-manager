@@ -59,7 +59,7 @@
 
         <!-- ---start -->
         {% if workTopic %}
-            <h2 id="work">{{workTopic.name}} {{workTopic.docType}} 
+            <h2 id="work">{{workTopic.name}} {{type}} 
                 {% if isDuplicate == "True" %}
                     Duplicate - Reason: {{work.reason}}
                 {% endif %}
