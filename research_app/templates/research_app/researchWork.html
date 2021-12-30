@@ -70,15 +70,15 @@
             
             <div class="d-md-flex justify-content-between">
                 <div class="p-1 m-1" style="border: 1px solid silver; border-radius: 5px;">
-                    <form action="{% url 'switchSummary' researchWorkTopic.id %}#work" method="get" style="display: inline;">
-                        <span>Switch Summary:</span>
-                        {% if researchWorkDuplicate %}
-                            <input type="hidden" name="duplicateId" value="{{researchWorkDuplicate.id}}">
+                    <form action="{% url 'switchResearch' researchWorkTopic.id %}#work" method="get" style="display: inline;">
+                        <span>Switch Research:</span>
+                        {% if summaryDuplicate %}
+                            <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
                         {% endif %}
-                        <select name="summary" class="form-control" style="display: inline; width: auto;" id="summary">
-                            <option value="original" style="color: blueviolet;">Original Summary</option>
-                            {% for summary in summaries %}
-                                <option value="{{summary.id}}">{{summary.reason}}</option>
+                        <select name="research" class="form-control" style="display: inline; width: auto;" id="research">
+                            <option value="original" style="color: blueviolet;">Original Research</option>
+                            {% for research in researches %}
+                                <option value="{{research.id}}">{{research.reason}}</option>
                             {% endfor %}
                         </select>
                         <button class="btn btn-primary" type="submit">Visit</button>
@@ -122,15 +122,15 @@
                 
                 <div class="p-1 m-1" style="border: 1px solid silver; border-radius: 5px;">
                 {% if researchWork.researchSummary %}
-                    <form action="{% url 'switchResearch' researchWorkTopic.id %}#work" method="get" style="display: inline;">
-                        <span>Switch Research:</span>
-                        {% if summaryDuplicate %}
-                            <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
+                    <form action="{% url 'switchSummary' researchWorkTopic.id %}#work" method="get" style="display: inline;">
+                        <span>Switch Summary:</span>
+                        {% if researchWorkDuplicate %}
+                            <input type="hidden" name="duplicateId" value="{{researchWorkDuplicate.id}}">
                         {% endif %}
-                        <select name="research" class="form-control" style="display: inline; width: auto;" id="research">
-                            <option value="original" style="color: blueviolet;">Original Research</option>
-                            {% for research in researches %}
-                                <option value="{{research.id}}">{{research.reason}}</option>
+                        <select name="summary" class="form-control" style="display: inline; width: auto;" id="summary">
+                            <option value="original" style="color: blueviolet;">Original Summary</option>
+                            {% for summary in summaries %}
+                                <option value="{{summary.id}}">{{summary.reason}}</option>
                             {% endfor %}
                         </select>
                         <button class="btn btn-primary" type="submit">Visit</button>
