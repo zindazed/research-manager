@@ -19,6 +19,13 @@ def home(request):
         "topics":topics,
     })
 
+def image(request):
+    if request.method=='GET':
+        image = request.GET["image"].strip()
+        return render(request, "research_app/image.html", {
+            "image":image
+    })
+
 def signUp(request):
     failMessage = ""
     if request.method=='POST':

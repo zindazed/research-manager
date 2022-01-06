@@ -17,13 +17,13 @@
         <div class="text-center">
             <h2 class="text-success">{{request.user.last_name}}</h2>
         </div>
-        <h3>
+        <h6>
             <a href="{% url 'home' %}">home</a>
             {% for directory in path %}
             / <a href="{% url 'folder' directory.id %}">{{directory.name}}</a>
             {% endfor %}
             /<span class="text-secondary">{{mergedSummaryTopic.name}}</span>
-        </h3>
+        </h6>
 
         <div>
             {% if request.session.successMessage %}
@@ -87,7 +87,7 @@
                 {% if summaryDuplicate %}
                     Duplicate - Reason: {{summaryDuplicate.reason}}
                 {% endif %}
-                <button class=" btn btn-primary" type="submit">Save</button>
+                <button class=" btn btn-success" type="submit">Save</button>
             </h2>
             {% if summaryDuplicate %}
                 <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">

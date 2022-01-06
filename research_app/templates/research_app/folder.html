@@ -17,13 +17,13 @@
         <div class="text-center">
             <h2 class="text-success">{{request.user.last_name}}</h2>
         </div>
-        <h3>
+        <h6>
             <a href="{% url 'home' %}">home</a>
             {% for directory in path %}
             / <a href="{% url 'folder' directory.id %}">{{directory.name}}</a>
             {% endfor %}
             /<span class="text-secondary">{{folderTopic.name}}</span>
-        </h3>
+        </h6>
     </div>
     {% include "research_app/folderContent.html" %}
     <script src="{% static 'bootstrap4/js/jquery-3.6.0.min.js' %}"></script>
