@@ -121,19 +121,19 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-# AWS_ACCESS_KEY_ID = "AKIAX4O7PGCHSMTK2P5K"
-# AWS_SECRET_ACCESS_KEY = "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"
-# AWS_STORAGE_BUCKET_NAME = "campaign-site"
-# AWS_S3_FILE_OVERWRITE = False
-# AWS_DEFAULT_ACL = None
-# AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
-# AWS_S3_OBJECT_PARAMENTERS = {"CacheControl": "max-age=86400"}
-# PUBLIC_MEDIA_LOCATION = 'media'
-# MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/"
-# DEFAULT_FILE_STORAGE = "Accounts.storage_backends.MediaStorage"
+AWS_ACCESS_KEY_ID = "AKIAX4O7PGCHSMTK2P5K"
+AWS_SECRET_ACCESS_KEY = "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"
+AWS_STORAGE_BUCKET_NAME = "campaign-site"
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+AWS_S3_OBJECT_PARAMENTERS = {"CacheControl": "max-age=86400"}
+PUBLIC_MEDIA_LOCATION = 'media'
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/"
+DEFAULT_FILE_STORAGE = "Accounts.storage_backends.MediaStorage"
 
-MEDIA_URL = "/images/"
-MEDIA_ROOT = os.path.join(BASE_DIR, 'assets/images')
+# MEDIA_URL = "/images/"
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'assets/images')
 
 STATIC_URL = '/static/'
 

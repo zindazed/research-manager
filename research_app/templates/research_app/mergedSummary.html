@@ -7,6 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'bootstrap4/css/bootstrap.css' %}">
     <title>{{mergedSummaryTopic.name}}</title>
+    <script src="https://cdn.ckeditor.com/ckeditor5/30.0.0/classic/ckeditor.js"></script>
+
 </head>
 <body>
     <div class="container">
@@ -33,7 +35,7 @@
             {% endif %}
         </div>
 
-        <form action="{% url 'switchWork' mergedSummaryTopic.id %}#work" method="get">
+        <form action="{% url 'switchWork' mergedSummaryTopic.id %}#Work" method="get">
             <label for="attachedWork">Attached Work:</label>
             <select class="form-control" style="display: inline; width: auto;" name="attachedWork" id="attachedWork">
                 {% for attachment in attachedWork %}
@@ -59,11 +61,11 @@
 
         <!-- ---start -->
         {% if workTopic %}
-            <h2 id="work">{{workTopic.name}} {{type}} 
+            <h2 id="Work">{{workTopic.name}} {{type}} 
                 {% if isDuplicate == "True" %}
                     Duplicate - Reason: {{work.reason}}
                 {% endif %}
-                {% if type == "researchWork" and isDuplicate != "True" %}
+                <!-- {% if type == "researchWork" and isDuplicate != "True" %}
                     <form action="{% url 'visitLink' %}" method="get" target="_blank" style="display: inline;">
                         <select class="form-control" style="display: inline; width: auto;" name="link" id="link">
                             {% for link in links %}
@@ -72,9 +74,9 @@
                         </select>
                         <button class=" btn btn-primary" type="submit">Visit</button>
                     </form>
-                {% endif %}
+                {% endif %} -->
             </h2>
-            <form action="{% url 'editWork' mergedSummaryTopic.id %}#work" method="post">
+            <form action="{% url 'editWork' mergedSummaryTopic.id %}#Work" method="post">
             {% csrf_token %}
             {% if isDuplicate == "True"%}
                 <input type="hidden" name="isDuplicate" value="{{isDuplicate}}">
@@ -82,7 +84,20 @@
             <input type="hidden" name="docType" value="{{type}}">
             <input type="hidden" name="workId" value="{{work.id}}">
             <textarea name="work" id="work" rows="16" class="form-control" placeholder="No Duplicate Research Done yet......." style="width: 100%;">{{work.work}}</textarea>
+            
+            <script>
+                ClassicEditor
+                    .create( document.querySelector( '#work' ) )
+                    .catch( error => {
+                        console.error( error );
+                    } );
+            </script>
 
+            <style>
+                .ck-editor__editable_inline {
+                    height: 300px;
+                }
+            </style>
             <h2>{{mergedSummaryTopic.name}} Merged Summary 
                 {% if summaryDuplicate %}
                     Duplicate - Reason: {{summaryDuplicate.reason}}
@@ -96,11 +111,19 @@
             {% else %}
                 <textarea name="mergedSummary" id="mergedSummary" class="form-control" placeholder="Summary has not yet been done......." rows="16" style="width: 100%;">{{mergedSummary.work}}</textarea>
             {% endif %}
+
+            <script>
+                ClassicEditor
+                    .create( document.querySelector( '#mergedSummary' ) )
+                    .catch( error => {
+                        console.error( error );
+                    } );
+            </script>
             </form>
         {% endif %}  
         <!-- ---stop -->
 
-        <form action="{% url 'switchMerge' mergedSummaryTopic.id %}#work" method="get" style="display: inline;">
+        <form action="{% url 'switchMerge' mergedSummaryTopic.id %}#Work" method="get" style="display: inline;">
             <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
             <input type="hidden" name="isDuplicate" value="{{isDuplicate}}">
             <input type="hidden" name="workId" value="{{work.id}}">
@@ -116,7 +139,7 @@
             <button class=" btn btn-primary" type="submit">Visit</button>
         </form>
 
-        <form action="{% url 'duplicateMerge' mergedSummaryTopic.id %}#work" method="post">
+        <form action="{% url 'duplicateMerge' mergedSummaryTopic.id %}#Work" method="post">
             {% csrf_token %}
             <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
             <input type="hidden" name="isDuplicate" value="{{isDuplicate}}">

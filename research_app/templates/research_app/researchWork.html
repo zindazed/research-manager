@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'bootstrap4/css/bootstrap.css' %}">
     <title>{{researchWorkTopic.name}}</title>
+    <script src="https://cdn.ckeditor.com/ckeditor5/30.0.0/classic/ckeditor.js"></script>
 </head>
 <body>
     <div class="container">
@@ -58,6 +59,20 @@
                 <textarea name="researchWork" id="researchWork" class="form-control" rows="10" placeholder="No Research Done yet......." style="width: 100%;">{{researchWork.work}}</textarea>
             {% endif %}
 
+            <script>
+                ClassicEditor
+                    .create( document.querySelector( '#researchWork' ) )
+                    .catch( error => {
+                        console.error( error );
+                    } );
+            </script>
+
+            <style>
+                .ck-editor__editable_inline {
+                    height: 300px;
+                }
+                </style>
+
                 <h2>{{researchWorkTopic.name}} Research Summary 
                     {% if summaryDuplicate %}
                         Duplicate - Reason: {{summaryDuplicate.reason}}
@@ -71,6 +86,14 @@
                 {% else %}
                     <textarea name="researchSummary" class="form-control" id="researchSummary" placeholder="Summary has not yet been done......." rows="10" style="width: 100%;">{{researchWork.researchSummary.work}}</textarea>
                 {% endif %}
+
+                <script>
+                    ClassicEditor
+                        .create( document.querySelector( '#researchSummary' ) )
+                        .catch( error => {
+                            console.error( error );
+                        } );
+                </script>
 
             </form>
             
