@@ -30,17 +30,17 @@ urlpatterns = [
     
     # path('duplicateMerge/<int:mergedSummaryTopicId>', views.duplicateMerge, name="duplicateMerge"),
 
-    path('switchSummary/<int:topicId>', views.switchSummary, name="switchSummary"),
+    # path('switchSummary/<int:topicId>', views.switchSummary, name="switchSummary"),
     path('switchResearch/<int:topicId>', views.switchResearch, name="switchResearch"),
     path('switchWork/<int:mergedSummaryTopicId>', views.switchWork, name="switchWork"),
     
-    path('deleteSummary/<int:topicId>', views.deleteSummary, name="deleteSummary"),
+    # path('deleteSummary/<int:topicId>', views.deleteSummary, name="deleteSummary"),
     path('deleteResearch/<int:topicId>', views.deleteResearch, name="deleteResearch"),
-    path('researchSummaryDuplicate/<int:duplicateId>', views.researchSummaryDuplicate, name="researchSummaryDuplicate"),
+    # path('researchSummaryDuplicate/<int:duplicateId>', views.researchSummaryDuplicate, name="researchSummaryDuplicate"),
     path('researchWorkDuplicate/<int:duplicateId>', views.researchWorkDuplicate, name="researchWorkDuplicate"),
 
     path('mergedSummary/<int:topicId>', views.mergedSummary, name="mergedSummary"),
-    path('duplicateSummary/<int:topicId>', views.duplicateSummary, name="duplicateSummary"),
+    # path('duplicateSummary/<int:topicId>', views.duplicateSummary, name="duplicateSummary"),
     path('duplicateResearch/<int:topicId>', views.duplicateResearch, name="duplicateResearch"),
     path('moveTopic/', views.moveTopic, name="moveTopic"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

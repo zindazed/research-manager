@@ -45,8 +45,6 @@
                         {% endif %}
                         {% if attachment.docType == "researchWork" %}
                             <span>Research Work: </span>
-                        {% elif attachment.docType == "researchSummary" %}
-                            <span>Research Summary: </span>
                         {% elif attachment.docType == "mergedSummary" %}
                             <span>Merged Summary: </span>
                         {% endif %}
@@ -54,6 +52,21 @@
                     {% if attachment.isDuplicate == "True" %}
                         <h4>({{attachment.reason}})</h4>
                     {% endif %}</option>
+                    {% if attachment.docType == "researchWork" %}
+                        <option value="{{attachment.id}}-{{attachment.docType}}Summary-{{attachment.isDuplicate}}"><h2>
+                        {% if attachment.isDuplicate == "True" %}
+                            <span>Duplicate</span>
+                        {% endif %}
+                        {% if attachment.docType == "researchWork" %}
+                            <span>Research Work Summary: </span>
+                        {% elif attachment.docType == "mergedSummary" %}
+                            <span>Merged Summary: </span>
+                        {% endif %}
+                        {{attachment.name}}</h2>
+                    {% if attachment.isDuplicate == "True" %}
+                        <h4>({{attachment.reason}})</h4>
+                    {% endif %}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
             <button class=" btn btn-primary" type="submit">Switch</button>
@@ -73,8 +86,13 @@
             {% endif %}
             <input type="hidden" name="docType" value="{{type}}">
             <input type="hidden" name="workId" value="{{work.id}}">
-            <textarea name="work" id="work" rows="16" class="form-control" placeholder="No Duplicate Research Done yet......." style="width: 100%;">{{work.work}}</textarea>
-            
+
+            {% if type == 'researchWorkSummary' %}
+                <textarea name="work" id="work" rows="16" class="form-control" placeholder="No Duplicate Research Done yet......." style="width: 100%;">{{work.summary}}</textarea>
+            {% else %}
+                <textarea name="work" id="work" rows="16" class="form-control" placeholder="No Duplicate Research Done yet......." style="width: 100%;">{{work.work}}</textarea>
+            {% endif %}
+
             <script>
                 ClassicEditor
                     .create( document.querySelector( '#work' ) )
@@ -132,20 +150,11 @@
                     <input type="checkbox" name="docTypes" value="Research Work" id="Research Work" checked>
                     <label for="Research Work">Research Work</label>
 
-                    <input type="checkbox" name="docTypes" value="Research Summary" id="Research Summary" checked>
-                    <label for="Research Summary">Research Summary</label>
-
                     <input type="checkbox" name="docTypes" value="Merged Summary" id="Merged Summary" checked>
                     <label for="Merged Summary">Merged Summary</label>          
                         
                     <input type="checkbox" name="docTypes" value="Research Work Duplicate" id="Research Work Duplicate" checked>
-                    <label for="Research Work Duplicate">Research Work Duplicate</label>
-
-                    <input type="checkbox" name="docTypes" value="Research Summary Duplicate" id="Research Summary Duplicate" checked>
-                    <label for="Research Summary Duplicate">Research Summary Duplicate</label>
-
-                    <input type="checkbox" name="docTypes" value="Merged Summary Duplicate" id="Merged Summary Duplicate" checked>
-                    <label for="Merged Summary Duplicate">Merged Summary Duplicate</label>          
+                    <label for="Research Work Duplicate">Research Work Duplicate</label>          
                         
                 </div>
             </form>

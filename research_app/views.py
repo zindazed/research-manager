@@ -485,14 +485,8 @@ def researchWork(request,topicId):
             break
     path.reverse()
     researchWork = the_topic
-
-    links = Link.objects.filter(researchWork = the_topic)
-
-    try:
-        originalResearchSummary = the_topic.researchSummary
-        summaries = ResearchSummaryDuplicate.objects.filter(originalResearchSummary = originalResearchSummary)
-    except ObjectDoesNotExist:
-        summaries = []
+    
+    # summaries = []
     researches = ResearchWorkDuplicate.objects.filter(originalResearchWork = the_topic)
     
     youtube = request.GET.get("youtube",False)
@@ -501,8 +495,7 @@ def researchWork(request,topicId):
         "researchWorkTopic":the_topic,
         "path":path,
         "youtube":youtube,
-        "links":links,
-        "summaries":summaries,
+        # "summaries":summaries,
         "researches":researches,
     })
 
@@ -517,86 +510,17 @@ def editResearch(request,topicId):
 
         if researchWorkDuplicateId:
             researchWorkDuplicate = ResearchWorkDuplicate.objects.get(id = researchWorkDuplicateId)
-            words = work.split(";;")
-            for i,word in enumerate(words):
-                if word.startswith(";"):
-                    link = word[word.index("::")+2:]
-                    name = word[1:word.index("::")]
-                    words[i] = "link:"+name
-                    if not link.startswith("http") and not link.startswith("//"):
-                        link = "//"+link
-                    if not Link.objects.filter(Q(name = name) & Q(url = link) & Q(researchWorkDuplicate = researchWorkDuplicate)).exists():
-                        the_link = Link(
-                            name = name,
-                            url = link,
-                            researchWorkDuplicate = researchWorkDuplicate,
-                        )
-                        the_link.save()
-
-            work = "".join(words)
-
-            links = Link.objects.filter(researchWorkDuplicate = researchWorkDuplicate)
-            for link in links:
-                if not "link:"+link.name in work:
-                    link.delete()
 
             researchWorkDuplicate.work = work
+            researchWorkDuplicate.summary = summary
             researchWorkDuplicate.save()
         else:
-            words = work.split(";;")
-            for i,word in enumerate(words):
-                if word.startswith(";"):
-                    link = word[word.index("::")+2:]
-                    name = word[1:word.index("::")]
-                    words[i] = "link:"+name
-                    if not link.startswith("http") and not link.startswith("//"):
-                        link = "//"+link
-                    if not Link.objects.filter(Q(name = name) & Q(url = link) & Q(researchWork = researchWork)).exists():
-                        the_link = Link(
-                            name = name,
-                            url = link,
-                            researchWork = researchWork,
-                        )
-                        the_link.save()
-
-            work = "".join(words)
-
-            links = Link.objects.filter(researchWork = researchWork)
-            for link in links:
-                if not "link:"+link.name in work:
-                    link.delete()
-
             researchWork.work = work
+            researchWork.summary = summary
             researchWork.save()
 
-        if duplicateId:
-            reason = request.POST.get("reason",False)
-            researchSummary = ResearchSummary.objects.get(researchWork = researchWork)
-            if(ResearchSummaryDuplicate.objects.filter(Q(originalResearchSummary = researchSummary) & Q(reason = reason)).exists()):
-                researchSummaryDuplicate = ResearchSummaryDuplicate.objects.get(Q(originalResearchSummary = researchSummary) & Q(reason = reason))
-                researchSummaryDuplicate.work = summary
-                researchSummaryDuplicate.save()
-            else:
-                researchSummaryDuplicate = ResearchSummaryDuplicate(
-                    work = summary,
-                    originalResearchSummary = researchSummary,
-                )
-                researchSummaryDuplicate.save()
-            request.session["successMessage"] = "Saved the work successfully"
-            request.session["failMessage"] = ""
-        else:
-            if(ResearchSummary.objects.filter(researchWork = researchWork).exists()):
-                researchSummary = ResearchSummary.objects.get(researchWork = researchWork)
-                researchSummary.work = summary
-                researchSummary.save()
-            else:
-                researchSummary = ResearchSummary(
-                    work = summary,
-                    researchWork = researchWork,
-                )
-                researchSummary.save()
-            request.session["successMessage"] = "Saved Work successfully"
-            request.session["failMessage"] = ""
+        request.session["successMessage"] = "Saved Work successfully"
+        request.session["failMessage"] = ""
 
         if researchWorkDuplicateId:
             if duplicateId:
@@ -629,66 +553,33 @@ def editWork(request,mergedSummaryTopicId):
             if docType == "researchWork":
                 if isDuplicate:
                     researchWorkDuplicate = ResearchWorkDuplicate.objects.get(id = workId)
-                    words = work.split(";;")
-                    for i,word in enumerate(words):
-                        if word.startswith(";"):
-                            link = word[word.index("::")+2:]
-                            name = word[1:word.index("::")]
-                            words[i] = "link:"+name
-                            if not link.startswith("http") and not link.startswith("//"):
-                                link = "//"+link
-                            if not Link.objects.filter(Q(name = name) & Q(url = link) & Q(researchWorkDuplicate = researchWorkDuplicate)).exists():
-                                the_link = Link(
-                                    name = name,
-                                    url = link,
-                                    researchWorkDuplicate = researchWorkDuplicate,
-                                )
-                                the_link.save()
-
-                    work = "".join(words)
-
-                    links = Link.objects.filter(researchWorkDuplicate = researchWorkDuplicate)
-                    for link in links:
-                        if not "link:"+link.name in work:
-                            link.delete()
-
+                    
                     researchWorkDuplicate.work = work
                     researchWorkDuplicate.save()                
                 else:
                     researchWork = ResearchWork.objects.get(id = workId)
-                    words = work.split(";;")
-                    for i,word in enumerate(words):
-                        if word.startswith(";"):
-                            link = word[word.index("::")+2:]
-                            name = word[1:word.index("::")]
-                            words[i] = "link:"+name
-                            if not link.startswith("http") and not link.startswith("//"):
-                                link = "//"+link
-                            if not Link.objects.filter(Q(name = name) & Q(url = link) & Q(researchWork = researchWork)).exists():
-                                the_link = Link(
-                                    name = name,
-                                    url = link,
-                                    researchWork = researchWork,
-                                )
-                                the_link.save()
-
-                    work = "".join(words)
-
-                    links = Link.objects.filter(researchWork = researchWork)
-                    for link in links:
-                        if not "link:"+link.name in work:
-                            link.delete()
-
+            
                     researchWork.work = work
+                    researchWork.save()
+            if docType == "researchWorkSummary":
+                if isDuplicate:
+                    researchWorkDuplicate = ResearchWorkDuplicate.objects.get(id = workId)
+                    
+                    researchWorkDuplicate.summary = work
+                    researchWorkDuplicate.save()                
+                else:
+                    researchWork = ResearchWork.objects.get(id = workId)
+            
+                    researchWork.summary = work
                     researchWork.save()
             elif docType == "researchSummary":
                 if isDuplicate:
-                    researchSummaryDuplicate = ResearchSummaryDuplicate.objects.get(id = workId)
-                    researchSummaryDuplicate.work = work
+                    researchSummaryDuplicate = ResearchWorkDuplicate.objects.get(id = workId)
+                    researchSummaryDuplicate.summary = work
                     researchSummaryDuplicate.save()
                 else:
-                    researchSummary = ResearchSummary.objects.get(id = workId)
-                    researchSummary.work = work
+                    researchSummary = ResearchWork.objects.get(id = workId)
+                    researchSummary.summary = work
                     researchSummary.save()
             elif docType == "mergedSummary":
                 mergedSummary = MergedSummary.objects.get(id = workId)
@@ -763,13 +654,6 @@ def detachWork(request, mergedSummaryTopicId):
             else:
                 researchWork = ResearchWork.objects.get(id = resultId)
                 mergedSummary.attachedResearchWorks.remove(researchWork)
-        elif resultDocType == "researchSummary":
-            if isResultDuplicate == "True":
-                researchSummaryDuplicate = ResearchSummaryDuplicate.objects.get(id = resultId)
-                mergedSummary.attachedResearchSummaryDuplicates.remove(researchSummaryDuplicate)
-            else:
-                researchSummary = ResearchSummary.objects.get(id = resultId)
-                mergedSummary.attachedResearchSummaries.remove(researchSummary)
         if resultDocType == "mergedSummary":
             attachedMergedSummary = MergedSummary.objects.get(id = resultId)
             mergedSummary.attachedMergedSummaries.remove(attachedMergedSummary)
@@ -806,13 +690,6 @@ def attachWork(request, mergedSummaryTopicId):
             else:
                 researchWork = ResearchWork.objects.get(id = resultId)
                 mergedSummary.attachedResearchWorks.add(researchWork)
-        elif resultDocType == "researchSummary":
-            if isResultDuplicate == "True":
-                researchSummaryDuplicate = ResearchSummaryDuplicate.objects.get(id = resultId)
-                mergedSummary.attachedResearchSummaryDuplicates.add(researchSummaryDuplicate)
-            else:
-                researchSummary = ResearchSummary.objects.get(id = resultId)
-                mergedSummary.attachedResearchSummaries.add(researchSummary)
         if resultDocType == "mergedSummary":
             attachedMergedSummary = MergedSummary.objects.get(id = resultId)
             mergedSummary.attachedMergedSummaries.add(attachedMergedSummary)
@@ -873,15 +750,15 @@ def mergedSearch(request,topicId):
                     }
                     searchResults.append(result)
                 
-                if nameResult.docType == "Research Work" and "Research Summary" in docTypes:
-                    result = {
-                    "id": nameResult.researchSummary.id,
-                    "isDuplicate": False,
-                    "docType": "researchSummary",
-                    "name": nameResult.name,
-                    "reason": False,
-                    }
-                    searchResults.append(result)
+                # if nameResult.docType == "Research Work" and "Research Summary" in docTypes:
+                #     result = {
+                #     "id": nameResult.researchSummary.id,
+                #     "isDuplicate": False,
+                #     "docType": "researchSummary",
+                #     "name": nameResult.name,
+                #     "reason": False,
+                #     }
+                #     searchResults.append(result)
 
                 if nameResult.docType == "Research Work" and "Research Work Duplicate" in docTypes:
                     for researchDuplicate in nameResult.researchWorkDuplicates.all():
@@ -894,16 +771,16 @@ def mergedSearch(request,topicId):
                         }
                         searchResults.append(result)
 
-                if nameResult.docType == "Research Work" and "Research Summary Duplicate" in docTypes:
-                    for summaryDuplicate in nameResult.researchSummary.researchSummaryDuplicates.all():
-                        result = {
-                        "id": summaryDuplicate.id,
-                        "isDuplicate": "True",
-                        "docType": "researchSummary",
-                        "name": nameResult.name,
-                        "reason": summaryDuplicate.reason,
-                        }
-                        searchResults.append(result)
+                # if nameResult.docType == "Research Work" and "Research Summary Duplicate" in docTypes:
+                #     for summaryDuplicate in nameResult.researchSummary.researchSummaryDuplicates.all():
+                #         result = {
+                #         "id": summaryDuplicate.id,
+                #         "isDuplicate": "True",
+                #         "docType": "researchSummary",
+                #         "name": nameResult.name,
+                #         "reason": summaryDuplicate.reason,
+                #         }
+                #         searchResults.append(result)
 
         results = searchResults
 
@@ -922,23 +799,13 @@ def mergedSearch(request,topicId):
         if workId:
             workTopic = False
             work = False
-            links = []
             if docType == "researchWork":
                 if isDuplicate == "True":
                     work = ResearchWorkDuplicate.objects.get(id = workId)
                     workTopic = work.originalResearchWork
-                    links = Link.objects.filter(researchWorkDuplicate = work)
                 else:
                     work = ResearchWork.objects.get(id = workId)
                     workTopic = work
-                    links = Link.objects.filter(researchWork = work)
-            if docType == "researchSummary":
-                if isDuplicate == "True":
-                    work = ResearchSummaryDuplicate.objects.get(id = workId)
-                    workTopic = work.originalResearchSummary.researchWork
-                else:
-                    work = ResearchSummary.objects.get(id = workId)
-                    workTopic = work.researchWork
             if docType == "mergedSummary":
                 work = MergedSummary.objects.get(id = workId)
                 workTopic = work
@@ -949,7 +816,6 @@ def mergedSearch(request,topicId):
             work = False
             summaryDuplicate = False
             workTopic = False
-            links = []
 
         mergedSummary = MergedSummary.objects.get(id=topicId)
         the_topic = mergedSummary
@@ -984,25 +850,25 @@ def mergedSearch(request,topicId):
             }
             attachedWork.append(result)
         
-        for attachedResult in mergedSummary.attachedResearchSummaries.all():
-            result = {
-                "id": attachedResult.id,
-                "isDuplicate": False,
-                "docType": "researchSummary",
-                "name": attachedResult.researchWork.name,
-                "reason": False,
-            }
-            attachedWork.append(result)
+        # for attachedResult in mergedSummary.attachedResearchSummaries.all():
+        #     result = {
+        #         "id": attachedResult.id,
+        #         "isDuplicate": False,
+        #         "docType": "researchSummary",
+        #         "name": attachedResult.researchWork.name,
+        #         "reason": False,
+        #     }
+        #     attachedWork.append(result)
 
-        for attachedResult in mergedSummary.attachedResearchSummaryDuplicates.all():
-            result = {
-                "id": attachedResult.id,
-                "isDuplicate": "True",
-                "docType": "researchSummary",
-                "name": attachedResult.originalResearchSummary.researchWork.name,
-                "reason": attachedResult.reason,
-            }
-            attachedWork.append(result)
+        # for attachedResult in mergedSummary.attachedResearchSummaryDuplicates.all():
+        #     result = {
+        #         "id": attachedResult.id,
+        #         "isDuplicate": "True",
+        #         "docType": "researchSummary",
+        #         "name": attachedResult.originalResearchSummary.researchWork.name,
+        #         "reason": attachedResult.reason,
+        #     }
+        #     attachedWork.append(result)
         
         for attachedResult in mergedSummary.attachedMergedSummaries.all():
             result = {
@@ -1023,7 +889,6 @@ def mergedSearch(request,topicId):
             "work":work,
             "type":docType,
             "summaryDuplicate":summaryDuplicate,
-            "links":links,
             "searchResults":results,
             "attachedWork":attachedWork,
         })
@@ -1055,23 +920,13 @@ def mergedSummary(request,topicId):
     if workId:
         workTopic = False
         work = False
-        links = []
-        if docType == "researchWork":
+        if docType == "researchWork" or docType == "researchWorkSummary":
             if isDuplicate == "True":
                 work = ResearchWorkDuplicate.objects.get(id = workId)
                 workTopic = work.originalResearchWork
-                links = Link.objects.filter(researchWorkDuplicate = work)
             else:
                 work = ResearchWork.objects.get(id = workId)
                 workTopic = work
-                links = Link.objects.filter(researchWork = work)
-        if docType == "researchSummary":
-            if isDuplicate == "True":
-                work = ResearchSummaryDuplicate.objects.get(id = workId)
-                workTopic = work.originalResearchSummary.researchWork
-            else:
-                work = ResearchSummary.objects.get(id = workId)
-                workTopic = work.researchWork
         if docType == "mergedSummary":
             work = MergedSummary.objects.get(id = workId)
             workTopic = work
@@ -1081,7 +936,6 @@ def mergedSummary(request,topicId):
         work = False
         summaryDuplicate = False
         workTopic = False
-        links = []
 
     mergedSummary = MergedSummary.objects.get(id=topicId)
     the_topic = mergedSummary
@@ -1116,25 +970,25 @@ def mergedSummary(request,topicId):
         }
         attachedWork.append(result)
     
-    for attachedResult in mergedSummary.attachedResearchSummaries.all():
-        result = {
-            "id": attachedResult.id,
-            "isDuplicate": False,
-            "docType": "researchSummary",
-            "name": attachedResult.researchWork.name,
-            "reason": False,
-        }
-        attachedWork.append(result)
+    # for attachedResult in mergedSummary.attachedResearchSummaries.all():
+    #     result = {
+    #         "id": attachedResult.id,
+    #         "isDuplicate": False,
+    #         "docType": "researchSummary",
+    #         "name": attachedResult.researchWork.name,
+    #         "reason": False,
+    #     }
+    #     attachedWork.append(result)
 
-    for attachedResult in mergedSummary.attachedResearchSummaryDuplicates.all():
-        result = {
-            "id": attachedResult.id,
-            "isDuplicate": "True",
-            "docType": "researchSummary",
-            "name": attachedResult.originalResearchSummary.researchWork.name,
-            "reason": attachedResult.reason,
-        }
-        attachedWork.append(result)
+    # for attachedResult in mergedSummary.attachedResearchSummaryDuplicates.all():
+    #     result = {
+    #         "id": attachedResult.id,
+    #         "isDuplicate": "True",
+    #         "docType": "researchSummary",
+    #         "name": attachedResult.originalResearchSummary.researchWork.name,
+    #         "reason": attachedResult.reason,
+    #     }
+    #     attachedWork.append(result)
     
     for attachedResult in mergedSummary.attachedMergedSummaries.all():
         result = {
@@ -1155,7 +1009,6 @@ def mergedSummary(request,topicId):
         "work":work,
         "type":docType,
         "summaryDuplicate":summaryDuplicate,
-        "links":links,
         "attachedWork":attachedWork,
     })
 
@@ -1265,66 +1118,66 @@ def duplicateResearch(request, topicId):
                 return redirect("researchWork",topicId)
 
 
-def duplicateSummary(request, topicId):
-    if request.method=='POST':
-        reason = request.POST["reason"]
-        researchWork = ResearchWork.objects.get(id = topicId)
-        originalResearchSummary = ResearchSummary.objects.get(researchWork = researchWork)
+# def duplicateSummary(request, topicId):
+#     if request.method=='POST':
+#         reason = request.POST["reason"]
+#         researchWork = ResearchWork.objects.get(id = topicId)
+#         originalResearchSummary = ResearchSummary.objects.get(researchWork = researchWork)
         
-        summaryDuplicateId = request.POST.get("duplicateId",False)
-        researchWorkDuplicateId = request.POST.get("researchWorkDuplicateId",False)
+#         summaryDuplicateId = request.POST.get("duplicateId",False)
+#         researchWorkDuplicateId = request.POST.get("researchWorkDuplicateId",False)
 
-        if ResearchSummaryDuplicate.objects.filter(Q(originalResearchSummary = originalResearchSummary) & Q(reason = reason)).exists():
-            request.session["failMessage"] = f"'{reason}' already exists as a reason for some other Summary duplicate of this very Research Work"
-            request.session["successMessage"] = ""
-        else:
-            duplicate = ResearchSummaryDuplicate(
-                reason = reason,
-                originalResearchSummary = originalResearchSummary,
-            )
-            duplicate.save()
-            request.session["successMessage"] = f"Research Summary duplicated successfully. Reason: {reason}"
-            request.session["failMessage"] = ""
+#         if ResearchSummaryDuplicate.objects.filter(Q(originalResearchSummary = originalResearchSummary) & Q(reason = reason)).exists():
+#             request.session["failMessage"] = f"'{reason}' already exists as a reason for some other Summary duplicate of this very Research Work"
+#             request.session["successMessage"] = ""
+#         else:
+#             duplicate = ResearchSummaryDuplicate(
+#                 reason = reason,
+#                 originalResearchSummary = originalResearchSummary,
+#             )
+#             duplicate.save()
+#             request.session["successMessage"] = f"Research Summary duplicated successfully. Reason: {reason}"
+#             request.session["failMessage"] = ""
         
-        if researchWorkDuplicateId:
-            if summaryDuplicateId:
-                base_url = reverse("researchWorkDuplicate", kwargs={'duplicateId': researchWorkDuplicateId})
-                query_String = urlencode({"summaryDuplicateId": summaryDuplicateId,
-                                        })
-                url = '{}?{}'.format(base_url, query_String)
-                return redirect(url)
-            else:
-                return redirect("researchWorkDuplicate",researchWorkDuplicateId)
-        else:
-            if summaryDuplicateId:
-                return redirect("researchSummaryDuplicate",summaryDuplicateId)
-            else:
-                return redirect("researchWork",topicId)
+#         if researchWorkDuplicateId:
+#             if summaryDuplicateId:
+#                 base_url = reverse("researchWorkDuplicate", kwargs={'duplicateId': researchWorkDuplicateId})
+#                 query_String = urlencode({"summaryDuplicateId": summaryDuplicateId,
+#                                         })
+#                 url = '{}?{}'.format(base_url, query_String)
+#                 return redirect(url)
+#             else:
+#                 return redirect("researchWorkDuplicate",researchWorkDuplicateId)
+#         else:
+#             if summaryDuplicateId:
+#                 return redirect("researchSummaryDuplicate",summaryDuplicateId)
+#             else:
+#                 return redirect("researchWork",topicId)
 
-def switchSummary(request, topicId):
-    if request.method=='GET':
-        summary = request.GET["summary"]
-        researchWorkDuplicateId = request.GET.get("duplicateId",False)
+# def switchSummary(request, topicId):
+#     if request.method=='GET':
+#         summary = request.GET["summary"]
+#         researchWorkDuplicateId = request.GET.get("duplicateId",False)
 
-        if summary == "original":
-            request.session["successMessage"] = "Switched to original Summary successfully"
-            request.session["failMessage"] = ""
+#         if summary == "original":
+#             request.session["successMessage"] = "Switched to original Summary successfully"
+#             request.session["failMessage"] = ""
 
-            if researchWorkDuplicateId:
-                return redirect("researchWorkDuplicate",researchWorkDuplicateId)
-            return redirect("researchWork",topicId)
-        else:
-            request.session["successMessage"] = "Switched to duplicate Summary successfully"
-            request.session["failMessage"] = ""
+#             if researchWorkDuplicateId:
+#                 return redirect("researchWorkDuplicate",researchWorkDuplicateId)
+#             return redirect("researchWork",topicId)
+#         else:
+#             request.session["successMessage"] = "Switched to duplicate Summary successfully"
+#             request.session["failMessage"] = ""
 
-            if researchWorkDuplicateId:
-                base_url = reverse("researchSummaryDuplicate", kwargs={'duplicateId': summary})
-                query_String = urlencode({"researchWorkDuplicateId": researchWorkDuplicateId,
-                                        })
-                url = '{}?{}'.format(base_url, query_String)
-                return redirect(url)
-            else:
-                return redirect("researchSummaryDuplicate",summary)
+#             if researchWorkDuplicateId:
+#                 base_url = reverse("researchSummaryDuplicate", kwargs={'duplicateId': summary})
+#                 query_String = urlencode({"researchWorkDuplicateId": researchWorkDuplicateId,
+#                                         })
+#                 url = '{}?{}'.format(base_url, query_String)
+#                 return redirect(url)
+#             else:
+#                 return redirect("researchSummaryDuplicate",summary)
 
 def switchResearch(request, topicId):
     if request.method=='GET':
@@ -1353,32 +1206,32 @@ def switchResearch(request, topicId):
                 return redirect("researchWorkDuplicate",research)
 
 
-def deleteSummary(request, topicId):
-    if request.method=='GET':
-        summaryId = request.GET["summary"]
-        researchWorkDuplicateId = request.GET.get("duplicateId",False)
-        summaryDuplicateId = request.GET.get("summaryDuplicateId",False)
+# def deleteSummary(request, topicId):
+#     if request.method=='GET':
+#         summaryId = request.GET["summary"]
+#         researchWorkDuplicateId = request.GET.get("duplicateId",False)
+#         summaryDuplicateId = request.GET.get("summaryDuplicateId",False)
 
-        summary = ResearchSummaryDuplicate.objects.get(id = summaryId)
-        summary.delete()
+#         summary = ResearchSummaryDuplicate.objects.get(id = summaryId)
+#         summary.delete()
 
-        request.session["successMessage"] = f"Summary duplicate (with reason: {summary.reason}) deleted successfully"
-        request.session["failMessage"] = ""
+#         request.session["successMessage"] = f"Summary duplicate (with reason: {summary.reason}) deleted successfully"
+#         request.session["failMessage"] = ""
 
-        if researchWorkDuplicateId:
-            if summaryDuplicateId:
-                base_url = reverse("researchWorkDuplicate", kwargs={'duplicateId': researchWorkDuplicateId})
-                query_String = urlencode({"summaryDuplicateId": summaryDuplicateId,
-                                        })
-                url = '{}?{}'.format(base_url, query_String)
-                return redirect(url)
-            else:
-                return redirect("researchWorkDuplicate",researchWorkDuplicateId)
-        else:
-            if summaryDuplicateId:
-                return redirect("researchSummaryDuplicate",summaryDuplicateId)
-            else:
-                return redirect("researchWork",topicId)
+#         if researchWorkDuplicateId:
+#             if summaryDuplicateId:
+#                 base_url = reverse("researchWorkDuplicate", kwargs={'duplicateId': researchWorkDuplicateId})
+#                 query_String = urlencode({"summaryDuplicateId": summaryDuplicateId,
+#                                         })
+#                 url = '{}?{}'.format(base_url, query_String)
+#                 return redirect(url)
+#             else:
+#                 return redirect("researchWorkDuplicate",researchWorkDuplicateId)
+#         else:
+#             if summaryDuplicateId:
+#                 return redirect("researchSummaryDuplicate",summaryDuplicateId)
+#             else:
+#                 return redirect("researchWork",topicId)
 
 def deleteResearch(request, topicId):
     if request.method=='GET':
@@ -1413,10 +1266,10 @@ def researchWorkDuplicate(request, duplicateId):
     researches = ResearchWorkDuplicate.objects.filter(originalResearchWork = originalResearchWork)
 
     summaryDuplicateId = request.GET.get("summaryDuplicateId",False)
-    if summaryDuplicateId:
-        summaryDuplicate = ResearchSummaryDuplicate.objects.get(id = int(summaryDuplicateId))
-    else:
-        summaryDuplicate = False
+    # if summaryDuplicateId:
+    #     summaryDuplicate = ResearchSummaryDuplicate.objects.get(id = int(summaryDuplicateId))
+    # else:
+    #     summaryDuplicate = False
 
     topicId = researchDuplicate.originalResearchWork.id
 
@@ -1431,58 +1284,54 @@ def researchWorkDuplicate(request, duplicateId):
             break
     path.reverse()
     researchWork = the_topic
-    links = Link.objects.filter(researchWorkDuplicate = researchDuplicate)
     
-    try:
-        originalResearchSummary = the_topic.researchSummary
-        summaries = ResearchSummaryDuplicate.objects.filter(originalResearchSummary = originalResearchSummary)
-    except ObjectDoesNotExist:
-        summaries = []
+    # try:
+    #     originalResearchSummary = the_topic.researchSummary
+    #     summaries = ResearchSummaryDuplicate.objects.filter(originalResearchSummary = originalResearchSummary)
+    # except ObjectDoesNotExist:
+    #     summaries = []
     return render(request,"research_app/researchWork.html",{
-        "summaries":summaries,
+        # "summaries":summaries,
         "researchWork":researchWork,
         "researchWorkTopic":the_topic,
         "path":path,
-        "links":links,
         "researches":researches,
         "researchWorkDuplicate":researchDuplicate,
-        "summaryDuplicate":summaryDuplicate,
+        # "summaryDuplicate":summaryDuplicate,
     })
 
-def researchSummaryDuplicate(request, duplicateId):
-    summaryDuplicate = ResearchSummaryDuplicate.objects.get(id = duplicateId)
-    originalResearchSummary = summaryDuplicate.originalResearchSummary
-    summaries = ResearchSummaryDuplicate.objects.filter(originalResearchSummary = originalResearchSummary)
+# def researchSummaryDuplicate(request, duplicateId):
+#     summaryDuplicate = ResearchSummaryDuplicate.objects.get(id = duplicateId)
+#     originalResearchSummary = summaryDuplicate.originalResearchSummary
+#     summaries = ResearchSummaryDuplicate.objects.filter(originalResearchSummary = originalResearchSummary)
     
-    researchWorkDuplicateId = request.GET.get("researchWorkDuplicateId",False)
-    if researchWorkDuplicateId:
-        researchWorkDuplicate = ResearchWorkDuplicate.objects.get(id = researchWorkDuplicateId)
-    else:
-        researchWorkDuplicate = False
+#     researchWorkDuplicateId = request.GET.get("researchWorkDuplicateId",False)
+#     if researchWorkDuplicateId:
+#         researchWorkDuplicate = ResearchWorkDuplicate.objects.get(id = researchWorkDuplicateId)
+#     else:
+#         researchWorkDuplicate = False
 
-    topicId = summaryDuplicate.originalResearchSummary.researchWork.id
+#     topicId = summaryDuplicate.originalResearchSummary.researchWork.id
 
-    researchWork = ResearchWork.objects.get(id=topicId)
-    the_topic = researchWork
-    path = []
-    while True:
-        if researchWork.parentFolder:
-            path.append(researchWork.parentFolder)
-            researchWork = researchWork.parentFolder
-        else:
-            break
-    path.reverse()
-    researchWork = the_topic
+#     researchWork = ResearchWork.objects.get(id=topicId)
+#     the_topic = researchWork
+#     path = []
+#     while True:
+#         if researchWork.parentFolder:
+#             path.append(researchWork.parentFolder)
+#             researchWork = researchWork.parentFolder
+#         else:
+#             break
+#     path.reverse()
+#     researchWork = the_topic
 
-    links = Link.objects.filter(researchWork = researchWork)
-    researches = ResearchWorkDuplicate.objects.filter(originalResearchWork = researchWork)
-    return render(request,"research_app/researchWork.html",{
-        "summaryDuplicate":summaryDuplicate,
-        "summaries":summaries,
-        "researchWork":researchWork,
-        "researchWorkTopic":the_topic,
-        "path":path,
-        "links":links,
-        "researches":researches,
-        "researchWorkDuplicate":researchWorkDuplicate,
-    })
+#     researches = ResearchWorkDuplicate.objects.filter(originalResearchWork = researchWork)
+#     return render(request,"research_app/researchWork.html",{
+#         "summaryDuplicate":summaryDuplicate,
+#         "summaries":summaries,
+#         "researchWork":researchWork,
+#         "researchWorkTopic":the_topic,
+#         "path":path,
+#         "researches":researches,
+#         "researchWorkDuplicate":researchWorkDuplicate,
+#     })
