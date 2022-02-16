@@ -103,19 +103,19 @@ class MergedSummary(models.Model):
     attachedMergedSummaries = models.ManyToManyField("MergedSummary", related_name="linkedMergedSummaries",blank=True)
     attachedResearchWorkDuplicates = models.ManyToManyField("ResearchWorkDuplicate", related_name="linkedMergedSummaries",blank=True)
     attachedResearchSummaryDuplicates = models.ManyToManyField("ResearchSummaryDuplicate", related_name="linkedMergedSummaries",blank=True)
-    attachedMergedSummaryDuplicates = models.ManyToManyField("MergedSummaryDuplicate", related_name="linkedMergedSummaries",blank=True)
+    # attachedMergedSummaryDuplicates = models.ManyToManyField("MergedSummaryDuplicate", related_name="linkedMergedSummaries",blank=True)
     CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
     LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
         return f"{self.name}"
 
-class MergedSummaryDuplicate(models.Model):
-    reason = models.TextField()
-    work = models.TextField(default="")
-    originalMergedSummary = models.ForeignKey("MergedSummary", related_name="mergedSummaryDuplicates", on_delete=models.CASCADE)
-    CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
-    LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
+# class MergedSummaryDuplicate(models.Model):
+#     reason = models.TextField()
+#     work = models.TextField(default="")
+#     originalMergedSummary = models.ForeignKey("MergedSummary", related_name="mergedSummaryDuplicates", on_delete=models.CASCADE)
+#     CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
+#     LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
-    def __str__(self):
-        return f"{self.originalMergedSummary.name} duplicated, Reason: {self.reason}"
+#     def __str__(self):
+#         return f"{self.originalMergedSummary.name} duplicated, Reason: {self.reason}"

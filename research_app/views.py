@@ -691,24 +691,13 @@ def editWork(request,mergedSummaryTopicId):
                     researchSummary.work = work
                     researchSummary.save()
             elif docType == "mergedSummary":
-                if isDuplicate:
-                    mergedSummaryDuplicate = MergedSummaryDuplicate.objects.get(id = workId)
-                    mergedSummaryDuplicate.work = mergedSummaryWork
-                    mergedSummaryDuplicate.save()
-                else:
-                    mergedSummary = MergedSummary.objects.get(id = workId)
-                    mergedSummary.work = mergedSummary
-                    mergedSummary.save()
+                mergedSummary = MergedSummary.objects.get(id = workId)
+                mergedSummary.work = mergedSummary
+                mergedSummary.save()
 
-        
-        if duplicateId:
-            theMergedSummaryDuplicate = MergedSummaryDuplicate.objects.get(id = duplicateId)
-            theMergedSummaryDuplicate.work = mergedSummaryWork
-            theMergedSummaryDuplicate.save()
-        else:
-            theMergedSummary = MergedSummary.objects.get(id = mergedSummaryTopicId)
-            theMergedSummary.work = mergedSummaryWork
-            theMergedSummary.save()
+        theMergedSummary = MergedSummary.objects.get(id = mergedSummaryTopicId)
+        theMergedSummary.work = mergedSummaryWork
+        theMergedSummary.save()
 
         request.session["successMessage"] = "Saved Work successfully"
         request.session["failMessage"] = ""
@@ -782,12 +771,8 @@ def detachWork(request, mergedSummaryTopicId):
                 researchSummary = ResearchSummary.objects.get(id = resultId)
                 mergedSummary.attachedResearchSummaries.remove(researchSummary)
         if resultDocType == "mergedSummary":
-            if isResultDuplicate == "True":
-                mergedSummaryDuplicate = MergedSummaryDuplicate.objects.get(id = resultId)
-                mergedSummary.attachedMergedSummaryDuplicates.remove(mergedSummaryDuplicate)
-            else:
-                attachedMergedSummary = MergedSummary.objects.get(id = resultId)
-                mergedSummary.attachedMergedSummaries.remove(attachedMergedSummary)
+            attachedMergedSummary = MergedSummary.objects.get(id = resultId)
+            mergedSummary.attachedMergedSummaries.remove(attachedMergedSummary)
 
         mergedSummary.save()
         request.session["failMessage"] = ""
@@ -829,12 +814,8 @@ def attachWork(request, mergedSummaryTopicId):
                 researchSummary = ResearchSummary.objects.get(id = resultId)
                 mergedSummary.attachedResearchSummaries.add(researchSummary)
         if resultDocType == "mergedSummary":
-            if isResultDuplicate == "True":
-                mergedSummaryDuplicate = MergedSummaryDuplicate.objects.get(id = resultId)
-                mergedSummary.attachedMergedSummaryDuplicates.add(mergedSummaryDuplicate)
-            else:
-                attachedMergedSummary = MergedSummary.objects.get(id = resultId)
-                mergedSummary.attachedMergedSummaries.add(attachedMergedSummary)
+            attachedMergedSummary = MergedSummary.objects.get(id = resultId)
+            mergedSummary.attachedMergedSummaries.add(attachedMergedSummary)
 
         mergedSummary.save()
         request.session["failMessage"] = ""
@@ -923,17 +904,6 @@ def mergedSearch(request,topicId):
                         "reason": summaryDuplicate.reason,
                         }
                         searchResults.append(result)
-                
-                if nameResult.docType == "Merged Summary" and "Merged Summary Duplicate" in docTypes:
-                    for mergedDuplicate in nameResult.mergedSummaryDuplicates.all():
-                        result = {
-                        "id": mergedDuplicate.id,
-                        "isDuplicate": "True",
-                        "docType": "mergedSummary",
-                        "name": nameResult.name,
-                        "reason": mergedDuplicate.reason,
-                        }
-                        searchResults.append(result)
 
         results = searchResults
 
@@ -970,17 +940,11 @@ def mergedSearch(request,topicId):
                     work = ResearchSummary.objects.get(id = workId)
                     workTopic = work.researchWork
             if docType == "mergedSummary":
-                if isDuplicate == "True":
-                    work = MergedSummaryDuplicate.objects.get(id = workId)
-                    workTopic = work.originalMergedSummary
-                else:
-                    work = MergedSummary.objects.get(id = workId)
-                    workTopic = work
+                work = MergedSummary.objects.get(id = workId)
+                workTopic = work
 
 
             summaryDuplicate = False
-            if duplicateId:
-                summaryDuplicate = MergedSummaryDuplicate.objects.get(id = duplicateId)
         else:
             work = False
             summaryDuplicate = False
@@ -1050,16 +1014,6 @@ def mergedSearch(request,topicId):
             }
             attachedWork.append(result)
 
-        for attachedResult in mergedSummary.attachedMergedSummaryDuplicates.all():
-            result = {
-                "id": attachedResult.id,
-                "isDuplicate": "True",
-                "docType": "mergedSummary",
-                "name": attachedResult.originalMergedSummary.name,
-                "reason": attachedResult.reason,
-            }
-            attachedWork.append(result)
-
         return render(request,"research_app/mergedSummary.html",{
             "mergedSummary":mergedSummary,
             "mergedSummaryTopic":the_topic,
@@ -1076,8 +1030,10 @@ def mergedSearch(request,topicId):
 
 def switchWork(request, mergedSummaryTopicId):
     if request.method=='GET':
-        attachedWork = request.GET["attachedWork"]
+        attachedWork = request.GET.get("attachedWork",False)
 
+        if not attachedWork:
+            return redirect("mergedSummary",mergedSummaryTopicId)
         attachedParts = attachedWork.split("-")
         request.session["failMessage"] = ""
         request.session["successMessage"] = "Switched attached Work Successfully"
@@ -1086,72 +1042,6 @@ def switchWork(request, mergedSummaryTopicId):
             "docType": attachedParts[1],
             "isDuplicate": attachedParts[2],
             "workId": attachedParts[0],
-            })
-        url = '{}?{}'.format(base_url, query_String)
-        return redirect(url)
-
-def switchMerge(request, mergedSummaryTopicId):
-    if request.method=='GET': 
-        merge = request.GET["merge"]
-        
-        duplicateId = request.GET.get("duplicateId",False)
-        isDuplicate = request.GET.get("isDuplicate",False)
-        workId = request.GET.get("workId",False)
-        docType = request.GET.get("docType",False)
-        if merge == "original":
-            request.session["failMessage"] = ""
-            request.session["successMessage"] = "Switched to original Merged Summary Successfully"
-            base_url = reverse("mergedSummary", kwargs={'topicId': mergedSummaryTopicId})
-            query_String = urlencode({
-                "docType": docType,
-                "workId": workId,
-                "isDuplicate": isDuplicate,
-                })
-            url = '{}?{}'.format(base_url, query_String)
-            return redirect(url)  
-        else:
-            request.session["failMessage"] = ""
-            request.session["successMessage"] = "Switched to the Merged Summary Duplicate successfully"
-            base_url = reverse("mergedSummary", kwargs={'topicId': mergedSummaryTopicId})
-            query_String = urlencode({
-                "docType": docType,
-                "workId": workId,
-                "isDuplicate": isDuplicate,
-                "duplicateId": merge,
-                })
-            url = '{}?{}'.format(base_url, query_String)
-            return redirect(url) 
-
-def duplicateMerge(request, mergedSummaryTopicId):
-    if request.method=='POST':
-        reason = request.POST["reason"]
-
-        mergedSummary = MergedSummary.objects.get(id = mergedSummaryTopicId)
-        
-        if MergedSummaryDuplicate.objects.filter(Q(reason = reason) & Q(originalMergedSummary = mergedSummary)).exists():
-            request.session["successMessage"] = ""
-            request.session["failMessage"] = f"A Duplicate of this Merged Summary with the reason ({reason}) already exists"
-        else:
-            mergedSummaryDuplicate = MergedSummaryDuplicate(
-                reason = reason,
-                originalMergedSummary = mergedSummary,
-            )
-            mergedSummaryDuplicate.save()
-
-            request.session["successMessage"] = f"Merged Summary Duplicate, (reason:{reason}) created successfully"
-            request.session["failMessage"] = ""
-
-        duplicateId = request.POST.get("duplicateId",False)
-        isDuplicate = request.POST.get("isDuplicate",False)
-        workId = request.POST.get("workId",False)
-        docType = request.POST.get("docType",False)
-
-        base_url = reverse("mergedSummary", kwargs={'topicId': mergedSummaryTopicId})
-        query_String = urlencode({
-            "docType": docType,
-            "workId": workId,
-            "isDuplicate": isDuplicate,
-            "duplicateId": duplicateId,
             })
         url = '{}?{}'.format(base_url, query_String)
         return redirect(url)        
@@ -1183,16 +1073,10 @@ def mergedSummary(request,topicId):
                 work = ResearchSummary.objects.get(id = workId)
                 workTopic = work.researchWork
         if docType == "mergedSummary":
-            if isDuplicate == "True":
-                work = MergedSummaryDuplicate.objects.get(id = workId)
-                workTopic = work.originalMergedSummary
-            else:
-                work = MergedSummary.objects.get(id = workId)
-                workTopic = work
+            work = MergedSummary.objects.get(id = workId)
+            workTopic = work
 
         summaryDuplicate = False
-        if duplicateId:
-            summaryDuplicate = MergedSummaryDuplicate.objects.get(id = duplicateId)
     else:
         work = False
         summaryDuplicate = False
@@ -1259,16 +1143,6 @@ def mergedSummary(request,topicId):
             "docType": "mergedSummary",
             "name": attachedResult.name,
             "reason": False,
-        }
-        attachedWork.append(result)
-
-    for attachedResult in mergedSummary.attachedMergedSummaryDuplicates.all():
-        result = {
-            "id": attachedResult.id,
-            "isDuplicate": "True",
-            "docType": "mergedSummary",
-            "name": attachedResult.originalMergedSummary.name,
-            "reason": attachedResult.reason,
         }
         attachedWork.append(result)
 

@@ -23,12 +23,12 @@ urlpatterns = [
     path('editResearch/<int:topicId>', views.editResearch, name="editResearch"),
     path('editWork/<int:mergedSummaryTopicId>', views.editWork, name="editWork"),
 
-    path('switchMerge/<int:mergedSummaryTopicId>', views.switchMerge, name="switchMerge"),
+    # path('switchMerge/<int:mergedSummaryTopicId>', views.switchMerge, name="switchMerge"),
     
     path('attachWork/<int:mergedSummaryTopicId>', views.attachWork, name="attachWork"),
     path('detachWork/<int:mergedSummaryTopicId>', views.detachWork, name="detachWork"),
     
-    path('duplicateMerge/<int:mergedSummaryTopicId>', views.duplicateMerge, name="duplicateMerge"),
+    # path('duplicateMerge/<int:mergedSummaryTopicId>', views.duplicateMerge, name="duplicateMerge"),
 
     path('switchSummary/<int:topicId>', views.switchSummary, name="switchSummary"),
     path('switchResearch/<int:topicId>', views.switchResearch, name="switchResearch"),

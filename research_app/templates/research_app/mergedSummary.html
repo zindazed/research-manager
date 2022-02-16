@@ -113,34 +113,6 @@
         {% endif %}  
         <!-- ---stop -->
 
-        <form action="{% url 'switchMerge' mergedSummaryTopic.id %}#Work" method="get" style="display: inline;">
-            <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
-            <input type="hidden" name="isDuplicate" value="{{isDuplicate}}">
-            <input type="hidden" name="workId" value="{{work.id}}">
-            <input type="hidden" name="docType" value="{{type}}">
-            
-            <span>Switch Merged Research:</span>
-            <select class="form-control" style="display: inline; width: auto;" name="merge" id="merge">
-                <option value="original" style="color: blueviolet;">Original Merged Summary</option>
-                {% for merge in mergedSummary.mergedSummaryDuplicates.all %}
-                    <option value="{{merge.id}}">{{merge.reason}}</option>
-                {% endfor %}
-            </select>
-            <button class=" btn btn-primary" type="submit">Visit</button>
-        </form>
-
-        <form action="{% url 'duplicateMerge' mergedSummaryTopic.id %}#Work" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="duplicateId" value="{{summaryDuplicate.id}}">
-            <input type="hidden" name="isDuplicate" value="{{isDuplicate}}">
-            <input type="hidden" name="workId" value="{{work.id}}">
-            <input type="hidden" name="docType" value="{{type}}">
-
-            <label for="reason">Reason:</label>
-            <input class="form-control" style="display: inline;" type="text" name="reason" id="reason">
-            <button class="btn mt-1 btn-primary" type="submit">Duplicate Research</button>
-        </form>
-
         <!-- Merged Search -->
         <div id="search" class="mt-5">
             <form action="{% url 'mergedSearch' mergedSummaryTopic.id %}#search" method="get">           
