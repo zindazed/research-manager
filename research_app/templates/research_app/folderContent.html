@@ -6,6 +6,7 @@
             <form action="{% url 'moveTopic' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="topicId" value="{{request.session.movingTopic}}">
+                <input type="hidden" name="docType" value="{{request.session.movingdocType}}">
                 {% if folderTopic %}
                     <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
                 {% endif %}
@@ -94,11 +95,12 @@
         <div class="bg-light border-bottom border-top border-success my-4">
             <h1>Search Results</h1>
             {% for topic in searchResults %}
-                <div class="card p-2 mb-2 bg-transparent" id="{{topic.id}}{{topic.name}}">
-                    {% if request.session.editId|add:0 == topic.id %}
-                        <form action="{% url 'editTopic' %}#{{topic.id}}{{topic.name}}" method="POST">
+                <div class="card p-2 mb-2 bg-transparent" id="search{{topic.id}}{{topic.docType}}{{topic.name}}">
+                    {% if request.session.editId|add:0 == topic.id and request.session.editType == topic.docType %}
+                        <form action="{% url 'editTopic' %}#search{{topic.id}}{{topic.docType}}{{topic.name}}" method="POST">
                             {% csrf_token %}
                             <input type="hidden" name="id" value="{{topic.id}}"></label>
+                            <input type="hidden" name="docType" value="{{topic.docType}}"></label>
                             <h2>{% if topic.docType == "Folder" %}
                                 <span>Folder: </span>
                             {% elif topic.docType == "Research Work" %}
@@ -108,8 +110,8 @@
                             {% endif %}
                             <input type="text" name="name" id="name" placeholder="name...." value="{{request.session.name}}" required>
                         </h2>
-                            <textarea name="description" id="description" class="form-control" cols="30" rows="10" placeholder="Description.....(optional)">{{request.session.description}}</textarea>     
-                            <button type="submit">Edit</button>
+                            <textarea name="description" id="description" class="form-control" cols="30" rows="5" placeholder="Description.....(optional)">{{request.session.description}}</textarea>     
+                            <button class="btn btn-primary ml-1 mb-3 mt-1" type="submit">Done</button>
                         </form>
                     {% else %}
                         <h2>
@@ -126,6 +128,7 @@
                     <div class="d-flex">
                         <form action="{% url 'moveTopic' %}" method="get">
                             <input type="hidden" name="id" value="{{topic.id}}">
+                            <input type="hidden" name="docType" value="{{topic.docType}}">
                             {% if folderTopic %}
                                 <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
                             {% endif %}
@@ -137,6 +140,7 @@
                                 <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
                             {% endif %}
                             <input type="hidden" name="id" value="{{topic.id}}">
+                            <input type="hidden" name="docType" value="{{topic.docType}}">
                             <button class="btn btn-primary mx-2" type="submit" onclick="return confirm('Are you sure you want to delete this Topic?')">Delete</button>
                         </form>
                     </div>
@@ -147,11 +151,12 @@
 
         <div class="row">
             {% for topic in topics %}
-                <div class="card p-2 mb-2" style="width: 100%;box-shadow:0 4px 8px rgba(0, 0, 0, 0.2);" id="{{topic.id}}{{topic.name}}">
-                    {% if request.session.editId|add:0 == topic.id %}
-                        <form action="{% url 'editTopic' %}#{{topic.id}}{{topic.name}}" method="POST">
+                <div class="card p-2 mb-2" style="width: 100%;box-shadow:0 4px 8px rgba(0, 0, 0, 0.2);" id="{{topic.id}}{{topic.docType}}{{topic.name}}">
+                    {% if request.session.editId|add:0 == topic.id and request.session.editType == topic.docType %}
+                        <form action="{% url 'editTopic' %}#{{topic.id}}{{topic.docType}}{{topic.name}}" method="POST">
                             {% csrf_token %}
                             <input type="hidden" name="id" value="{{topic.id}}"></label>
+                            <input type="hidden" name="docType" value="{{topic.docType}}"></label>
                             {% if folderTopic %}
                                 <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
                             {% endif %}
@@ -164,8 +169,8 @@
                             {% endif %}
                             <input type="text" name="name" id="name" placeholder="name...." value="{{request.session.name}}" required>
                         </h2>
-                            <textarea name="description" id="description" class="form-control" cols="30" rows="10" placeholder="Description.....(optional)">{{request.session.description}}</textarea>     
-                            <button type="submit">Edit</button>
+                            <textarea name="description" id="description" class="form-control" cols="30" rows="2" placeholder="Description.....(optional)">{{request.session.description}}</textarea>     
+                            <button class="btn btn-primary ml-1 mb-3 mt-1" type="submit">Done</button>
                         </form>
                     {% else %}
                         <h2 class="card-title">
@@ -183,9 +188,10 @@
                         <h4>{{topic.description}}</h4>
                     {% endif %}
                     <div class="d-flex">
-                    {% if request.session.editId|add:0 != topic.id %}
-                        <form action="{% url 'editTopic' %}#{{topic.id}}{{topic.name}}" method="GET">
+                    {% if request.session.editId|add:0 != topic.id and request.session.editType != topic.docType%}
+                        <form action="{% url 'editTopic' %}#{{topic.id}}{{topic.docType}}{{topic.name}}" method="GET">
                             <input type="hidden" name="id" value="{{topic.id}}">
+                            <input type="hidden" name="docType" value="{{topic.docType}}"></label>
                             {% if folderTopic %}
                                 <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
                             {% endif %}
@@ -193,8 +199,9 @@
                         </form>
                     {% endif %}
 
-                    <form  action="{% url 'moveTopic' %}#{{topic.id}}{{topic.name}}" method="get">
+                    <form  action="{% url 'moveTopic' %}#{{topic.id}}{{topic.docType}}{{topic.name}}" method="get">
                         <input type="hidden" name="id" value="{{topic.id}}">
+                        <input type="hidden" name="docType" value="{{topic.docType}}">
                         {% if folderTopic %}
                             <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
                         {% endif %}
@@ -203,6 +210,7 @@
 
                     <form action="{% url 'deleteTopic' %}" method="GET">
                         <input type="hidden" name="id" value="{{topic.id}}">
+                        <input type="hidden" name="docType" value="{{topic.docType}}">
                         {% if folderTopic %}
                             <input type="hidden" name="folderTopicId" value="{{folderTopic.id}}">
                         {% endif %}

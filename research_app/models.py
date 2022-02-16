@@ -10,35 +10,45 @@ import json
 
 # Create your models here.
 
-class Topic(models.Model):
-    name = models.CharField(max_length=200)
-    description = models.TextField(null=True,blank=True)
-    parentFolder = models.ForeignKey("Folder", related_name = "topics",null=True,blank=True,on_delete=models.CASCADE)
-    researcher = models.ForeignKey(User, related_name="topics", on_delete=models.CASCADE)
-    docType = models.CharField(max_length=50)
-    CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
-    LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
+# class Topic(models.Model):
+#     name = models.CharField(max_length=200)
+#     description = models.TextField(null=True,blank=True)
+#     parentFolder = models.ForeignKey("Folder", related_name = "topics",null=True,blank=True,on_delete=models.CASCADE)
+#     researcher = models.ForeignKey(User, related_name="topics", on_delete=models.CASCADE)
+#     docType = models.CharField(max_length=50)
+#     CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
+#     LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
-    def __str__(self):
-        return f"{self.name} {self.docType}"
+#     def __str__(self):
+#         return f"{self.name} {self.docType}"
     
 
 class Folder(models.Model):
-    topic = models.OneToOneField("Topic", related_name = "folder", on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    description = models.TextField(null=True,blank=True)
+    parentFolder = models.ForeignKey("Folder", related_name = "folders",null=True,blank=True,on_delete=models.CASCADE)
+    researcher = models.ForeignKey(User, related_name="folders", on_delete=models.CASCADE)
+    docType = models.CharField(max_length=50, default="Folder")
+    # topic = models.OneToOneField("Topic", related_name = "folder", on_delete=models.CASCADE)
     CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
     LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
-        return f"{self.topic.name}"
+        return f"{self.name}"
 
 class ResearchWork(models.Model):
-    topic = models.OneToOneField("Topic", related_name = "ResearchWork", on_delete=models.CASCADE)
+    # topic = models.OneToOneField("Topic", related_name = "ResearchWork", on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    description = models.TextField(null=True,blank=True)
+    parentFolder = models.ForeignKey("Folder", related_name = "researchWorks",null=True,blank=True,on_delete=models.CASCADE)
+    researcher = models.ForeignKey(User, related_name="researchWorks", on_delete=models.CASCADE)
+    docType = models.CharField(max_length=50, default="Research Work")
     work = models.TextField(default="")
     CreatedAt = models.DateTimeField(auto_now=False, auto_now_add=True)
     LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
-        return f"{self.topic.name}"
+        return f"{self.name}"
 
 class ResearchWorkDuplicate(models.Model):
     reason = models.TextField()
@@ -48,7 +58,7 @@ class ResearchWorkDuplicate(models.Model):
     LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
-        return f"{self.originalResearchWork.topic.name} Duplicated, Reason: {self.reason}"
+        return f"{self.originalResearchWork.name} Duplicated, Reason: {self.reason}"
 
 class Link(models.Model):
     name = models.CharField(max_length=200)
@@ -68,7 +78,7 @@ class ResearchSummary(models.Model):
     LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
-        return f"{self.researchWork.topic.name}"
+        return f"{self.researchWork.name}"
 
 class ResearchSummaryDuplicate(models.Model):
     reason = models.TextField()
@@ -78,10 +88,15 @@ class ResearchSummaryDuplicate(models.Model):
     LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
-        return f"{self.originalResearchSummary.researchWork.topic.name} Duplicated, Reason: {self.reason}"
+        return f"{self.originalResearchSummary.researchWork.name} Duplicated, Reason: {self.reason}"
 
 class MergedSummary(models.Model):
-    topic = models.OneToOneField("Topic", related_name = "MergedSummary", on_delete=models.CASCADE)
+    # topic = models.OneToOneField("Topic", related_name = "MergedSummary", on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    description = models.TextField(null=True,blank=True)
+    parentFolder = models.ForeignKey("Folder", related_name = "mergedSummaries",null=True,blank=True,on_delete=models.CASCADE)
+    researcher = models.ForeignKey(User, related_name="mergedSummaries", on_delete=models.CASCADE)
+    docType = models.CharField(max_length=50, default="Merged Summary")
     work = models.TextField(default="")
     attachedResearchWorks = models.ManyToManyField("ResearchWork", related_name="linkedMergedSummaries",blank=True)
     attachedResearchSummaries = models.ManyToManyField("ResearchSummary", related_name="linkedMergedSummaries",blank=True)
@@ -93,7 +108,7 @@ class MergedSummary(models.Model):
     LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
-        return f"{self.topic.name}"
+        return f"{self.name}"
 
 class MergedSummaryDuplicate(models.Model):
     reason = models.TextField()
@@ -103,4 +118,4 @@ class MergedSummaryDuplicate(models.Model):
     LastModifiedAt = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
-        return f"{self.originalMergedSummary.topic.name} duplicated, Reason: {self.reason}"
+        return f"{self.originalMergedSummary.name} duplicated, Reason: {self.reason}"

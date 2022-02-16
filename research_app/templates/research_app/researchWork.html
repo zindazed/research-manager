@@ -35,21 +35,18 @@
                 {% if researchWorkDuplicate %}
                     Duplicate - Reason: {{researchWorkDuplicate.reason}}
                 {% endif %}
-                    <form action="{% url 'visitLink' %}" method="get" target="_blank" style="display: inline;">
-                        <select class="form-control" style="display: inline; width: auto;" name="link" id="link">
-                            {% for link in links %}
-                                <option value="{{link.url}}">{{link.name}}</option>
-                            {% endfor %}
-                        </select>
-                        <button class="btn btn-primary" type="submit">Visit</button>
-                    </form>
-                    <form action="{% url 'image' %}" method="get" target="_blank" style="display: inline;">
+                    <form action="{% url 'youtube' researchWorkTopic.id %}" method="get" style="display: inline;">
                         <div class="d-flex">
-                            <input class="form-control" type="text" name="image" id="image">
-                            <button class="btn btn-primary" type="submit">View Image</button>
+                            <input class="form-control" type="text" name="youtube" id="youtube">
+                            <button class="btn btn-primary" type="submit">View YouTube</button>
                         </div>
                     </form>
             </h2>
+            {% if youtube %}
+                <div>
+                <iframe style="width:100%" height="315" src="https://www.youtube.com/embed/{{youtube}}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                {% endif %}
             <form action="{% url 'editResearch' researchWorkTopic.id %}#work" method="post">
             {% csrf_token %}
             {% if researchWorkDuplicate %}
@@ -205,7 +202,6 @@
         </div>
     </div>
     <div class="container text-center mt-3">
-    <p class="text-info">link format is ;;;name::link;; for example: ;;;google::www.google.com;;</p>
     </div>
 </body>
 </html>

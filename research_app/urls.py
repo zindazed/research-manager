@@ -5,7 +5,7 @@ from django.conf import settings
 
 urlpatterns = [
     path('', views.home, name="home"),
-    path('image', views.image, name="image"),
+    path('youtube/<int:topicId>', views.youtube, name="youtube"),
     path('signup/', views.signUp, name="signup"),
     path('login/', views.logIn, name="login"),
     path('logout/', views.logOut, name="logout"),
@@ -43,5 +43,4 @@ urlpatterns = [
     path('duplicateSummary/<int:topicId>', views.duplicateSummary, name="duplicateSummary"),
     path('duplicateResearch/<int:topicId>', views.duplicateResearch, name="duplicateResearch"),
     path('moveTopic/', views.moveTopic, name="moveTopic"),
-    path('visitLink/', views.visitLink, name="visitLink"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -65,16 +65,6 @@
                 {% if isDuplicate == "True" %}
                     Duplicate - Reason: {{work.reason}}
                 {% endif %}
-                <!-- {% if type == "researchWork" and isDuplicate != "True" %}
-                    <form action="{% url 'visitLink' %}" method="get" target="_blank" style="display: inline;">
-                        <select class="form-control" style="display: inline; width: auto;" name="link" id="link">
-                            {% for link in links %}
-                                <option value="{{link.url}}">{{link.name}}</option>
-                            {% endfor %}
-                        </select>
-                        <button class=" btn btn-primary" type="submit">Visit</button>
-                    </form>
-                {% endif %} -->
             </h2>
             <form action="{% url 'editWork' mergedSummaryTopic.id %}#Work" method="post">
             {% csrf_token %}

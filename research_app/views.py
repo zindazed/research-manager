@@ -14,17 +14,22 @@ def home(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("login"))
     
-    topics = Topic.objects.filter(Q(researcher = request.user) & Q(parentFolder__isnull = True)).order_by("docType")
+    folders = Folder.objects.filter(Q(researcher = request.user) & Q(parentFolder__isnull = True))
+    researWorks = ResearchWork.objects.filter(Q(researcher = request.user) & Q(parentFolder__isnull = True))
+    mergedSummaries = MergedSummary.objects.filter(Q(researcher = request.user) & Q(parentFolder__isnull = True))
+    topics = list(chain(folders, researWorks, mergedSummaries))
     return render(request,"research_app/home.html", {
         "topics":topics,
     })
 
-def image(request):
+def youtube(request,topicId):
     if request.method=='GET':
-        image = request.GET["image"].strip()
-        return render(request, "research_app/image.html", {
-            "image":image
-    })
+        youtube = request.GET["youtube"].strip()
+        base_url = reverse("researchWork", kwargs={'topicId': topicId})
+        query_String = urlencode({"youtube": youtube,
+                                        })
+        url = '{}?{}'.format(base_url, query_String)
+        return redirect(url)
 
 def signUp(request):
     failMessage = ""
@@ -107,64 +112,101 @@ def addTopic(request):
             folder = Folder.objects.get(id = int(folderId))
 
         if folder:
-            newTopic = Topic(
-                name = name,
-                description = description,
-                parentFolder = folder,
-                researcher = request.user,
-                docType = docType,
-            )
-            topicId = folder.topic.id
+            if docType == "Folder":
+                if not Folder.objects.filter(Q(name = name) & Q(researcher = request.user)).exists():
+                    newTopic = Folder(
+                    name = name,
+                    description = description,
+                    parentFolder = folder,
+                    researcher = request.user,
+                    docType = docType,
+                )
+                    newTopic.save()
+                    request.session["successMessage"] = "Folder Created successfully"
+                    request.session["failMessage"] = ""
+
+                else:
+                    request.session["failMessage"] = "You already created a folder with that same name, search for it to see it"
+                    request.session["successMessage"] = ""
+            elif docType == "Merged Summary":
+                if not MergedSummary.objects.filter(Q(name = name) & Q(researcher = request.user)).exists():
+                    newTopic = MergedSummary(
+                    name = name,
+                    description = description,
+                    parentFolder = folder,
+                    researcher = request.user,
+                    docType = docType,
+                )
+                    newTopic.save()
+                    request.session["successMessage"] = "Merged Summary Created successfully"
+                    request.session["failMessage"] = ""
+
+                else:
+                    request.session["failMessage"] = "You already created a Merged Summary with that same name, search for it to see it"
+                    request.session["successMessage"] = ""
+            elif docType == "Research Work":
+                if not ResearchWork.objects.filter(Q(name = name) & Q(researcher = request.user)).exists():
+                    newTopic = ResearchWork(
+                    name = name,
+                    description = description,
+                    parentFolder = folder,
+                    researcher = request.user,
+                    docType = docType,
+                )
+                    newTopic.save()
+                    request.session["successMessage"] = "Research Work Created successfully"
+                    request.session["failMessage"] = ""
+
+                else:
+                    request.session["failMessage"] = "You already created a Research Work with that same name, search for it to see it"
+                    request.session["successMessage"] = ""
+            topicId = folder.id
         else:
-            newTopic = Topic(
-                name = name,
-                description = description,
-                researcher = request.user,
-                docType = docType,
-            )
-        
-        topic = Topic.objects.filter(Q(name = name) & Q(researcher = request.user))
-        if docType == "Folder":
-            if not Folder.objects.filter(topic__in = topic).exists():
-                newTopic.save()
-                newFolder = Folder(
-                    topic = newTopic,
+            if docType == "Folder":
+                if not Folder.objects.filter(Q(name = name) & Q(researcher = request.user)).exists():
+                    newTopic = Folder(
+                    name = name,
+                    description = description,
+                    researcher = request.user,
+                    docType = docType,
                 )
-                newFolder.save()
-                request.session["successMessage"] = "Folder Created successfully"
-                request.session["failMessage"] = ""
+                    newTopic.save()
+                    request.session["successMessage"] = "Folder Created successfully"
+                    request.session["failMessage"] = ""
 
-            else:
-                request.session["failMessage"] = "You already created a folder with that same name, search for it to see it"
-                request.session["successMessage"] = ""
-
-        elif docType == "Research Work":
-            if not ResearchWork.objects.filter(topic__in = topic).exists():
-                newTopic.save()
-                newResearchWork = ResearchWork(
-                    topic = newTopic,
+                else:
+                    request.session["failMessage"] = "You already created a folder with that same name, search for it to see it"
+                    request.session["successMessage"] = ""
+            elif docType == "Merged Summary":
+                if not MergedSummary.objects.filter(Q(name = name) & Q(researcher = request.user)).exists():
+                    newTopic = MergedSummary(
+                    name = name,
+                    description = description,
+                    researcher = request.user,
+                    docType = docType,
                 )
-                newResearchWork.save()
-                request.session["successMessage"] = "Research Work Created successfully"
-                request.session["failMessage"] = ""
+                    newTopic.save()
+                    request.session["successMessage"] = "Merged Summary Created successfully"
+                    request.session["failMessage"] = ""
 
-            else:
-                request.session["failMessage"] = "You already created a Research Work with that same name, search for it to see it"
-                request.session["successMessage"] = ""
-
-        elif docType == "Merged Summary":
-            if not MergedSummary.objects.filter(topic__in = topic).exists():
-                newTopic.save()
-                newMergedSummary = MergedSummary(
-                    topic = newTopic,
+                else:
+                    request.session["failMessage"] = "You already created a Merged Summary with that same name, search for it to see it"
+                    request.session["successMessage"] = ""
+            elif docType == "Research Work":
+                if not ResearchWork.objects.filter(Q(name = name) & Q(researcher = request.user)).exists():
+                    newTopic = ResearchWork(
+                    name = name,
+                    description = description,
+                    researcher = request.user,
+                    docType = docType,
                 )
-                newMergedSummary.save()
-                request.session["successMessage"] = "Merged Summary Created successfully"
-                request.session["failMessage"] = ""
+                    newTopic.save()
+                    request.session["successMessage"] = "Research Work Created successfully"
+                    request.session["failMessage"] = ""
 
-            else:
-                request.session["failMessage"] = "You already created a Merged Summary with that same name, search for it to see it"
-                request.session["successMessage"] = ""
+                else:
+                    request.session["failMessage"] = "You already created a Research Work with that same name, search for it to see it"
+                    request.session["successMessage"] = ""
         
         if topicId:
             return redirect("folder",topicId)
@@ -173,13 +215,20 @@ def addTopic(request):
 
 def editTopic(request):
     folderTopicId = False
+    docType = False
     if request.method=='POST':
         folderTopicId = request.POST.get("folderTopicId",False)
+        docType = request.POST.get("docType",False)
         topicId = int(request.POST["id"].strip())
         name = (request.POST["name"].strip())
         description = (request.POST["description"].strip())
 
-        topic = Topic.objects.get(id = topicId)
+        if docType == "Folder":        
+            topic = Folder.objects.get(id = topicId)
+        elif docType == "Research Work":        
+            topic = ResearchWork.objects.get(id = topicId)
+        elif docType == "Merged Summary":        
+            topic = MergedSummary.objects.get(id = topicId)
         topic.name = name
         topic.description = description
         topic.save()
@@ -192,13 +241,20 @@ def editTopic(request):
         
     elif request.method=='GET':
         folderTopicId = request.GET.get("folderTopicId",False)
+        docType = request.GET["docType"]
         topicId = int(request.GET["id"])
 
-        topic = Topic.objects.get(id = topicId)
+        if docType == "Folder":        
+            topic = Folder.objects.get(id = topicId)
+        elif docType == "Research Work":        
+            topic = ResearchWork.objects.get(id = topicId)
+        elif docType == "Merged Summary":        
+            topic = MergedSummary.objects.get(id = topicId)
         request.session["name"] = topic.name
         request.session["description"] = topic.description
 
         request.session["editId"] = topicId
+        request.session["editType"] = docType
     if folderTopicId:
         return redirect("folder",folderTopicId)
     else:
@@ -208,9 +264,15 @@ def deleteTopic(request):
     folderTopicId = False
     if request.method=='GET':
         topicId = int(request.GET["id"])
+        docType = request.GET["docType"]
         folderTopicId = request.GET.get("folderTopicId",False)
 
-        topic = Topic.objects.get(id = topicId)
+        if docType == "Folder":        
+            topic = Folder.objects.get(id = topicId)
+        elif docType == "Research Work":        
+            topic = ResearchWork.objects.get(id = topicId)
+        elif docType == "Merged Summary":        
+            topic = MergedSummary.objects.get(id = topicId)
         topic.delete()
         request.session["successMessage"] = f"{topic.name} {topic.docType} deleted successfully".capitalize()
         request.session["failMessage"] = ""
@@ -233,12 +295,30 @@ def search(request,topicId):
 
         if docTypes:
             if "name" in filter:
-                nameResults = Topic.objects.filter(Q(name__icontains = search) & Q(researcher = request.user) & Q(docType__in = docTypes))
-                nameResults = list(nameResults)
+                nameResults1 = list()
+                nameResults2 = list()
+                nameResults3 = list()
+                if "Folder" in docTypes:
+                    nameResults1 = Folder.objects.filter(Q(name__icontains = search) & Q(researcher = request.user))
+                if "Research Work" in docTypes:
+                    nameResults2 = ResearchWork.objects.filter(Q(name__icontains = search) & Q(researcher = request.user))
+                if "Merged Summary" in docTypes:
+                    nameResults3 = MergedSummary.objects.filter(Q(name__icontains = search) & Q(researcher = request.user))
+                    
+                nameResults = list(chain(nameResults1, nameResults2, nameResults3))
 
             if "description" in filter:
-                descriptionResults = Topic.objects.filter(Q(description__icontains = search) & Q(researcher = request.user) & Q(docType__in = docTypes))
-                descriptionResults = list(descriptionResults)
+                descriptionResults1 = list()
+                descriptionResults2 = list()
+                descriptionResults3 = list()
+                if "Folder" in docTypes:
+                    descriptionResults1 = Folder.objects.filter(Q(description__icontains = search) & Q(researcher = request.user))
+                if "Research Work" in docTypes:
+                    descriptionResults2 = ResearchWork.objects.filter(Q(description__icontains = search) & Q(researcher = request.user))
+                if "Merged Summary" in docTypes:
+                    descriptionResults3 = MergedSummary.objects.filter(Q(description__icontains = search) & Q(researcher = request.user))
+                    
+                descriptionResults = list(chain(descriptionResults1, descriptionResults2, descriptionResults3))
 
             if "work" in filter:
                 researchWorkResults = []
@@ -250,12 +330,12 @@ def search(request,topicId):
                         MergedSummaryResults = MergedSummary.objects.filter(work__icontains = search)
                 
                 for researchWorkResult in researchWorkResults:
-                    if researchWorkResult.topic.researcher == request.user:
-                        workResults.append(researchWorkResult.topic)
+                    if researchWorkResult.researcher == request.user:
+                        workResults.append(researchWorkResult)
                 
                 for MergedSummaryResult in MergedSummaryResults:
-                    if MergedSummaryResult.topic.researcher == request.user:
-                        workResults.append(MergedSummaryResult.topic)
+                    if MergedSummaryResult.researcher == request.user:
+                        workResults.append(MergedSummaryResult)
                 
                 workResults = list(workResults)
 
@@ -268,19 +348,22 @@ def search(request,topicId):
         else:
             request.session["successMessage"] = ""
             request.session["failMessage"] = "0 Topics found, No topic matched the specified search criteria"
-            
-        topic = Topic.objects.get(id=topicId)
-        the_topic = topic
-        folder = Folder.objects.get(topic = topic)
+                    
+        folder = Folder.objects.get(id=topicId)
+        the_topic = folder
         path = []
         while True:
-            if topic.parentFolder:
-                path.append(topic.parentFolder.topic)
-                topic = topic.parentFolder.topic
+            if folder.parentFolder:
+                path.append(folder.parentFolder)
+                folder = folder.parentFolder
             else:
                 break
         path.reverse()
-        topics = Topic.objects.filter(Q(researcher = request.user) & Q(parentFolder = folder)).order_by("docType")
+        folder = the_topic
+        folders = Folder.objects.filter(Q(researcher = request.user) & Q(parentFolder = folder))
+        researchWorks = ResearchWork.objects.filter(Q(researcher = request.user) & Q(parentFolder = folder))
+        mergedSummaries = MergedSummary.objects.filter(Q(researcher = request.user) & Q(parentFolder = folder))
+        topics = list(chain(folders, researchWorks, mergedSummaries))
         return render(request,"research_app/folder.html",{
             "folder":folder,
             "folderTopic":the_topic,
@@ -302,12 +385,30 @@ def searchHome(request):
 
         if docTypes:
             if "name" in filter:
-                nameResults = Topic.objects.filter(Q(name__icontains = search) & Q(researcher = request.user) & Q(docType__in = docTypes))
-                nameResults = list(nameResults)
+                nameResults1 = list()
+                nameResults2 = list()
+                nameResults3 = list()
+                if "Folder" in docTypes:
+                    nameResults1 = Folder.objects.filter(Q(name__icontains = search) & Q(researcher = request.user))
+                if "Research Work" in docTypes:
+                    nameResults2 = ResearchWork.objects.filter(Q(name__icontains = search) & Q(researcher = request.user))
+                if "Merged Summary" in docTypes:
+                    nameResults3 = MergedSummary.objects.filter(Q(name__icontains = search) & Q(researcher = request.user))
+                    
+                nameResults = list(chain(nameResults1, nameResults2, nameResults3))
 
             if "description" in filter:
-                descriptionResults = Topic.objects.filter(Q(description__icontains = search) & Q(researcher = request.user) & Q(docType__in = docTypes))
-                descriptionResults = list(descriptionResults)
+                descriptionResults1 = list()
+                descriptionResults2 = list()
+                descriptionResults3 = list()
+                if "Folder" in docTypes:
+                    descriptionResults1 = Folder.objects.filter(Q(description__icontains = search) & Q(researcher = request.user))
+                if "Research Work" in docTypes:
+                    descriptionResults2 = ResearchWork.objects.filter(Q(description__icontains = search) & Q(researcher = request.user))
+                if "Merged Summary" in docTypes:
+                    descriptionResults3 = MergedSummary.objects.filter(Q(description__icontains = search) & Q(researcher = request.user))
+                    
+                descriptionResults = list(chain(descriptionResults1, descriptionResults2, descriptionResults3))
 
             if "work" in filter:
                 researchWorkResults = []
@@ -319,12 +420,12 @@ def searchHome(request):
                         MergedSummaryResults = MergedSummary.objects.filter(work__icontains = search)
                 
                 for researchWorkResult in researchWorkResults:
-                    if researchWorkResult.topic.researcher == request.user:
-                        workResults.append(researchWorkResult.topic)
+                    if researchWorkResult.researcher == request.user:
+                        workResults.append(researchWorkResult)
                 
                 for MergedSummaryResult in MergedSummaryResults:
-                    if MergedSummaryResult.topic.researcher == request.user:
-                        workResults.append(MergedSummaryResult.topic)
+                    if MergedSummaryResult.researcher == request.user:
+                        workResults.append(MergedSummaryResult)
                 
                 workResults = list(workResults)
 
@@ -339,7 +440,10 @@ def searchHome(request):
             request.session["failMessage"] = "0 Topics found, No topic matched the specified search criteria"
 
 
-        topics = Topic.objects.filter(Q(researcher = request.user) & Q(parentFolder__isnull = True)).order_by("docType")
+        folders = Folder.objects.filter(Q(researcher = request.user) & Q(parentFolder__isnull = True))
+        researchWorks = ResearchWork.objects.filter(Q(researcher = request.user) & Q(parentFolder__isnull = True))
+        mergedSummaries = MergedSummary.objects.filter(Q(researcher = request.user) & Q(parentFolder__isnull = True))
+        topics = list(chain(folders, researchWorks, mergedSummaries))
         return render(request,"research_app/home.html",{
             "searchResults":results,
             "topics":topics
@@ -347,50 +451,56 @@ def searchHome(request):
 
 
 def folder(request,topicId):
-    topic = Topic.objects.get(id=topicId)
-    the_topic = topic
-    folder = Folder.objects.get(topic = topic)
+    folder = Folder.objects.get(id=topicId)
+    the_topic = folder
     path = []
     while True:
-        if topic.parentFolder:
-            path.append(topic.parentFolder.topic)
-            topic = topic.parentFolder.topic
+        if folder.parentFolder:
+            path.append(folder.parentFolder)
+            folder = folder.parentFolder
         else:
             break
     path.reverse()
-    topics = Topic.objects.filter(Q(researcher = request.user) & Q(parentFolder = folder)).order_by("docType")
+    folder = the_topic
+    folders = Folder.objects.filter(Q(researcher = request.user) & Q(parentFolder = the_topic))
+    researchWorks = ResearchWork.objects.filter(Q(researcher = request.user) & Q(parentFolder = the_topic))
+    mergedSummaries = MergedSummary.objects.filter(Q(researcher = request.user) & Q(parentFolder = the_topic))
+    topics = list(chain(folders, researchWorks, mergedSummaries))
     return render(request,"research_app/folder.html",{
-        "folder":folder,
+        "folder":the_topic,
         "folderTopic":the_topic,
         "path":path,
         "topics":topics,
     })
 
 def researchWork(request,topicId):
-    topic = Topic.objects.get(id=topicId)
-    the_topic = topic
-    researchWork = ResearchWork.objects.get(topic = topic)
+    researchWork = ResearchWork.objects.get(id=topicId)
+    the_topic = researchWork
     path = []
     while True:
-        if topic.parentFolder:
-            path.append(topic.parentFolder.topic)
-            topic = topic.parentFolder.topic
+        if researchWork.parentFolder:
+            path.append(researchWork.parentFolder)
+            researchWork = researchWork.parentFolder
         else:
             break
     path.reverse()
+    researchWork = the_topic
 
-    links = Link.objects.filter(researchWork = researchWork)
+    links = Link.objects.filter(researchWork = the_topic)
 
     try:
-        originalResearchSummary = researchWork.researchSummary
+        originalResearchSummary = the_topic.researchSummary
         summaries = ResearchSummaryDuplicate.objects.filter(originalResearchSummary = originalResearchSummary)
     except ObjectDoesNotExist:
         summaries = []
-    researches = ResearchWorkDuplicate.objects.filter(originalResearchWork = researchWork)
+    researches = ResearchWorkDuplicate.objects.filter(originalResearchWork = the_topic)
+    
+    youtube = request.GET.get("youtube",False)
     return render(request,"research_app/researchWork.html",{
-        "researchWork":researchWork,
+        "researchWork":the_topic,
         "researchWorkTopic":the_topic,
         "path":path,
+        "youtube":youtube,
         "links":links,
         "summaries":summaries,
         "researches":researches,
@@ -403,8 +513,7 @@ def editResearch(request,topicId):
         duplicateId = request.POST.get("duplicateId",False) 
         researchWorkDuplicateId = request.POST.get("researchWorkDuplicateId",False)
         
-        researchTopic = Topic.objects.get(id = topicId)
-        researchWork = ResearchWork.objects.get(topic = researchTopic)
+        researchWork = ResearchWork.objects.get(id = topicId)
 
         if researchWorkDuplicateId:
             researchWorkDuplicate = ResearchWorkDuplicate.objects.get(id = researchWorkDuplicateId)
@@ -597,8 +706,7 @@ def editWork(request,mergedSummaryTopicId):
             theMergedSummaryDuplicate.work = mergedSummaryWork
             theMergedSummaryDuplicate.save()
         else:
-            mergedSummaryTopic = Topic.objects.get(id = mergedSummaryTopicId)
-            theMergedSummary = MergedSummary.objects.get(topic = mergedSummaryTopic)
+            theMergedSummary = MergedSummary.objects.get(id = mergedSummaryTopicId)
             theMergedSummary.work = mergedSummaryWork
             theMergedSummary.save()
 
@@ -658,8 +766,7 @@ def detachWork(request, mergedSummaryTopicId):
         if isDuplicate == isResultDuplicate and resultDocType == docType and resultId ==workId:
             workId = ""
 
-        mergedSummaryTopic = Topic.objects.get(id = mergedSummaryTopicId)
-        mergedSummary = MergedSummary.objects.get(topic = mergedSummaryTopic)
+        mergedSummary = MergedSummary.objects.get(id = mergedSummaryTopicId)
         if resultDocType == "researchWork":
             if isResultDuplicate == "True":
                 researchWorkDuplicate = ResearchWorkDuplicate.objects.get(id = resultId)
@@ -706,8 +813,7 @@ def attachWork(request, mergedSummaryTopicId):
         resultDocType = request.POST["resultDocType"]
         resultId = request.POST["resultId"]
 
-        mergedSummaryTopic = Topic.objects.get(id = mergedSummaryTopicId)
-        mergedSummary = MergedSummary.objects.get(topic = mergedSummaryTopic)
+        mergedSummary = MergedSummary.objects.get(id = mergedSummaryTopicId)
         if resultDocType == "researchWork":
             if isResultDuplicate == "True":
                 researchWorkDuplicate = ResearchWorkDuplicate.objects.get(id = resultId)
@@ -750,14 +856,24 @@ def mergedSearch(request,topicId):
 
         searchResults = []
         if docTypes:
-            nameResults = Topic.objects.filter(Q(name__icontains = search) & Q(researcher = request.user))
+            nameResults1 = list()
+            nameResults2 = list()
+            nameResults3 = list()
+            if "Folder" in docTypes:
+                nameResults1 = Folder.objects.filter(Q(name__icontains = search) & Q(researcher = request.user))
+            if "Research Work" in docTypes:
+                nameResults2 = ResearchWork.objects.filter(Q(name__icontains = search) & Q(researcher = request.user))
+            if "Merged Summary" in docTypes:
+                nameResults3 = MergedSummary.objects.filter(Q(name__icontains = search) & Q(researcher = request.user))
+                
+            nameResults = list(chain(nameResults1, nameResults2, nameResults3))
             
             docType = False
             for nameResult in nameResults:
                 if nameResult.docType == "Research Work" and "Research Work" in docTypes:
                     docType = "researchWork"
                     result = {
-                        "id": nameResult.ResearchWork.id,
+                        "id": nameResult.id,
                         "isDuplicate": False,
                         "docType": docType,
                         "name": nameResult.name,
@@ -768,7 +884,7 @@ def mergedSearch(request,topicId):
                 if nameResult.docType == "Merged Summary" and "Merged Summary" in docTypes:
                     docType = "mergedSummary"
                     result = {
-                        "id": nameResult.MergedSummary.id,
+                        "id": nameResult.id,
                         "isDuplicate": False,
                         "docType": docType,
                         "name": nameResult.name,
@@ -778,7 +894,7 @@ def mergedSearch(request,topicId):
                 
                 if nameResult.docType == "Research Work" and "Research Summary" in docTypes:
                     result = {
-                    "id": nameResult.ResearchWork.researchSummary.id,
+                    "id": nameResult.researchSummary.id,
                     "isDuplicate": False,
                     "docType": "researchSummary",
                     "name": nameResult.name,
@@ -787,7 +903,7 @@ def mergedSearch(request,topicId):
                     searchResults.append(result)
 
                 if nameResult.docType == "Research Work" and "Research Work Duplicate" in docTypes:
-                    for researchDuplicate in nameResult.ResearchWork.researchWorkDuplicates.all():
+                    for researchDuplicate in nameResult.researchWorkDuplicates.all():
                         result = {
                         "id": researchDuplicate.id,
                         "isDuplicate": "True",
@@ -798,7 +914,7 @@ def mergedSearch(request,topicId):
                         searchResults.append(result)
 
                 if nameResult.docType == "Research Work" and "Research Summary Duplicate" in docTypes:
-                    for summaryDuplicate in nameResult.ResearchWork.researchSummary.researchSummaryDuplicates.all():
+                    for summaryDuplicate in nameResult.researchSummary.researchSummaryDuplicates.all():
                         result = {
                         "id": summaryDuplicate.id,
                         "isDuplicate": "True",
@@ -809,7 +925,7 @@ def mergedSearch(request,topicId):
                         searchResults.append(result)
                 
                 if nameResult.docType == "Merged Summary" and "Merged Summary Duplicate" in docTypes:
-                    for mergedDuplicate in nameResult.MergedSummary.mergedSummaryDuplicates.all():
+                    for mergedDuplicate in nameResult.mergedSummaryDuplicates.all():
                         result = {
                         "id": mergedDuplicate.id,
                         "isDuplicate": "True",
@@ -840,26 +956,26 @@ def mergedSearch(request,topicId):
             if docType == "researchWork":
                 if isDuplicate == "True":
                     work = ResearchWorkDuplicate.objects.get(id = workId)
-                    workTopic = work.originalResearchWork.topic
+                    workTopic = work.originalResearchWork
                     links = Link.objects.filter(researchWorkDuplicate = work)
                 else:
                     work = ResearchWork.objects.get(id = workId)
-                    workTopic = work.topic
+                    workTopic = work
                     links = Link.objects.filter(researchWork = work)
             if docType == "researchSummary":
                 if isDuplicate == "True":
                     work = ResearchSummaryDuplicate.objects.get(id = workId)
-                    workTopic = work.originalResearchSummary.researchWork.topic
+                    workTopic = work.originalResearchSummary.researchWork
                 else:
                     work = ResearchSummary.objects.get(id = workId)
-                    workTopic = work.researchWork.topic
+                    workTopic = work.researchWork
             if docType == "mergedSummary":
                 if isDuplicate == "True":
                     work = MergedSummaryDuplicate.objects.get(id = workId)
-                    workTopic = work.originalMergedSummary.topic
+                    workTopic = work.originalMergedSummary
                 else:
                     work = MergedSummary.objects.get(id = workId)
-                    workTopic = work.topic
+                    workTopic = work
 
 
             summaryDuplicate = False
@@ -871,17 +987,17 @@ def mergedSearch(request,topicId):
             workTopic = False
             links = []
 
-        topic = Topic.objects.get(id=topicId)
-        the_topic = topic
-        mergedSummary = MergedSummary.objects.get(topic = topic)
+        mergedSummary = MergedSummary.objects.get(id=topicId)
+        the_topic = mergedSummary
         path = []
         while True:
-            if topic.parentFolder:
-                path.append(topic.parentFolder.topic)
-                topic = topic.parentFolder.topic
+            if mergedSummary.parentFolder:
+                path.append(mergedSummary.parentFolder)
+                mergedSummary = mergedSummary.parentFolder
             else:
                 break
         path.reverse()
+        mergedSummary = the_topic
 
         attachedWork = []
         for attachedResult in mergedSummary.attachedResearchWorks.all():
@@ -889,7 +1005,7 @@ def mergedSearch(request,topicId):
                 "id": attachedResult.id,
                 "isDuplicate": False,
                 "docType": "researchWork",
-                "name": attachedResult.topic.name,
+                "name": attachedResult.name,
                 "reason": False,
             }
             attachedWork.append(result)
@@ -899,7 +1015,7 @@ def mergedSearch(request,topicId):
                 "id": attachedResult.id,
                 "isDuplicate": "True",
                 "docType": "researchWork",
-                "name": attachedResult.originalResearchWork.topic.name,
+                "name": attachedResult.originalResearchWork.name,
                 "reason": attachedResult.reason,
             }
             attachedWork.append(result)
@@ -909,7 +1025,7 @@ def mergedSearch(request,topicId):
                 "id": attachedResult.id,
                 "isDuplicate": False,
                 "docType": "researchSummary",
-                "name": attachedResult.researchWork.topic.name,
+                "name": attachedResult.researchWork.name,
                 "reason": False,
             }
             attachedWork.append(result)
@@ -919,7 +1035,7 @@ def mergedSearch(request,topicId):
                 "id": attachedResult.id,
                 "isDuplicate": "True",
                 "docType": "researchSummary",
-                "name": attachedResult.originalResearchSummary.researchWork.topic.name,
+                "name": attachedResult.originalResearchSummary.researchWork.name,
                 "reason": attachedResult.reason,
             }
             attachedWork.append(result)
@@ -929,7 +1045,7 @@ def mergedSearch(request,topicId):
                 "id": attachedResult.id,
                 "isDuplicate": False,
                 "docType": "mergedSummary",
-                "name": attachedResult.topic.name,
+                "name": attachedResult.name,
                 "reason": False,
             }
             attachedWork.append(result)
@@ -939,7 +1055,7 @@ def mergedSearch(request,topicId):
                 "id": attachedResult.id,
                 "isDuplicate": "True",
                 "docType": "mergedSummary",
-                "name": attachedResult.originalMergedSummary.topic.name,
+                "name": attachedResult.originalMergedSummary.name,
                 "reason": attachedResult.reason,
             }
             attachedWork.append(result)
@@ -1010,8 +1126,7 @@ def duplicateMerge(request, mergedSummaryTopicId):
     if request.method=='POST':
         reason = request.POST["reason"]
 
-        mergedSummaryTopic = Topic.objects.get(id = mergedSummaryTopicId)
-        mergedSummary = MergedSummary.objects.get(topic = mergedSummaryTopic)
+        mergedSummary = MergedSummary.objects.get(id = mergedSummaryTopicId)
         
         if MergedSummaryDuplicate.objects.filter(Q(reason = reason) & Q(originalMergedSummary = mergedSummary)).exists():
             request.session["successMessage"] = ""
@@ -1054,26 +1169,26 @@ def mergedSummary(request,topicId):
         if docType == "researchWork":
             if isDuplicate == "True":
                 work = ResearchWorkDuplicate.objects.get(id = workId)
-                workTopic = work.originalResearchWork.topic
+                workTopic = work.originalResearchWork
                 links = Link.objects.filter(researchWorkDuplicate = work)
             else:
                 work = ResearchWork.objects.get(id = workId)
-                workTopic = work.topic
+                workTopic = work
                 links = Link.objects.filter(researchWork = work)
         if docType == "researchSummary":
             if isDuplicate == "True":
                 work = ResearchSummaryDuplicate.objects.get(id = workId)
-                workTopic = work.originalResearchSummary.researchWork.topic
+                workTopic = work.originalResearchSummary.researchWork
             else:
                 work = ResearchSummary.objects.get(id = workId)
-                workTopic = work.researchWork.topic
+                workTopic = work.researchWork
         if docType == "mergedSummary":
             if isDuplicate == "True":
                 work = MergedSummaryDuplicate.objects.get(id = workId)
-                workTopic = work.originalMergedSummary.topic
+                workTopic = work.originalMergedSummary
             else:
                 work = MergedSummary.objects.get(id = workId)
-                workTopic = work.topic
+                workTopic = work
 
         summaryDuplicate = False
         if duplicateId:
@@ -1084,17 +1199,17 @@ def mergedSummary(request,topicId):
         workTopic = False
         links = []
 
-    topic = Topic.objects.get(id=topicId)
-    the_topic = topic
-    mergedSummary = MergedSummary.objects.get(topic = topic)
+    mergedSummary = MergedSummary.objects.get(id=topicId)
+    the_topic = mergedSummary
     path = []
     while True:
-        if topic.parentFolder:
-            path.append(topic.parentFolder.topic)
-            topic = topic.parentFolder.topic
+        if mergedSummary.parentFolder:
+            path.append(mergedSummary.parentFolder)
+            mergedSummary = mergedSummary.parentFolder
         else:
             break
     path.reverse()
+    mergedSummary = the_topic
 
     attachedWork = []
     for attachedResult in mergedSummary.attachedResearchWorks.all():
@@ -1102,7 +1217,7 @@ def mergedSummary(request,topicId):
             "id": attachedResult.id,
             "isDuplicate": False,
             "docType": "researchWork",
-            "name": attachedResult.topic.name,
+            "name": attachedResult.name,
             "reason": False,
         }
         attachedWork.append(result)
@@ -1112,7 +1227,7 @@ def mergedSummary(request,topicId):
             "id": attachedResult.id,
             "isDuplicate": "True",
             "docType": "researchWork",
-            "name": attachedResult.originalResearchWork.topic.name,
+            "name": attachedResult.originalResearchWork.name,
             "reason": attachedResult.reason,
         }
         attachedWork.append(result)
@@ -1122,7 +1237,7 @@ def mergedSummary(request,topicId):
             "id": attachedResult.id,
             "isDuplicate": False,
             "docType": "researchSummary",
-            "name": attachedResult.researchWork.topic.name,
+            "name": attachedResult.researchWork.name,
             "reason": False,
         }
         attachedWork.append(result)
@@ -1132,7 +1247,7 @@ def mergedSummary(request,topicId):
             "id": attachedResult.id,
             "isDuplicate": "True",
             "docType": "researchSummary",
-            "name": attachedResult.originalResearchSummary.researchWork.topic.name,
+            "name": attachedResult.originalResearchSummary.researchWork.name,
             "reason": attachedResult.reason,
         }
         attachedWork.append(result)
@@ -1142,7 +1257,7 @@ def mergedSummary(request,topicId):
             "id": attachedResult.id,
             "isDuplicate": False,
             "docType": "mergedSummary",
-            "name": attachedResult.topic.name,
+            "name": attachedResult.name,
             "reason": False,
         }
         attachedWork.append(result)
@@ -1152,7 +1267,7 @@ def mergedSummary(request,topicId):
             "id": attachedResult.id,
             "isDuplicate": "True",
             "docType": "mergedSummary",
-            "name": attachedResult.originalMergedSummary.topic.name,
+            "name": attachedResult.originalMergedSummary.name,
             "reason": attachedResult.reason,
         }
         attachedWork.append(result)
@@ -1173,10 +1288,20 @@ def mergedSummary(request,topicId):
 def moveTopic(request):
     if request.method=='GET':
         topicId = int(request.GET["id"])
+        docType = request.GET["docType"]
         folderTopicId = request.GET.get("folderTopicId",False)
-        topic = Topic.objects.get(id = topicId)
+        if docType == "Folder":
+            topic = Folder.objects.get(id = topicId)
+        if docType == "Research Work":
+            topic = ResearchWork.objects.get(id = topicId)
+        if docType == "Merged Summary":
+            topic = MergedSummary.objects.get(id = topicId)
+                
+        print(f"the doctype is {docType}")
+
         request.session["movingTopic"] = topicId
-        request.session["successMessage"] = f"{topic} was added to the clipboard"
+        request.session["movingdocType"] = docType
+        request.session["successMessage"] = f"{topic} {docType} was added to the clipboard"
         request.session["failMessage"] = ""
         if folderTopicId:
             return redirect("folder",folderTopicId)
@@ -1185,19 +1310,24 @@ def moveTopic(request):
     
     elif request.method=='POST':
         topicId = int(request.POST["topicId"])
+        docType = request.POST["docType"]
+        print(f"the doctype is {docType}")
         folderTopicId = int(request.POST.get("folderTopicId",False))
-        topic = Topic.objects.get(id = topicId)
+        if docType == "Folder":
+            topic = Folder.objects.get(id = topicId)
+        if docType == "Research Work":
+            topic = ResearchWork.objects.get(id = topicId)
+        if docType == "Merged Summary":
+            topic = MergedSummary.objects.get(id = topicId)
         path = []
         if folderTopicId:
-            folderTopic = Topic.objects.get(id = folderTopicId)
-            newParentFolder = Folder.objects.get(topic = folderTopic)
-
-            parentFolderTopic = folderTopic
+            newParentFolder = Folder.objects.get(id = folderTopicId)
+            parentFolderTopic = newParentFolder
             path.append(parentFolderTopic)
             while True:
                 if parentFolderTopic.parentFolder:
-                    path.append(parentFolderTopic.parentFolder.topic)
-                    parentFolderTopic = parentFolderTopic.parentFolder.topic
+                    path.append(parentFolderTopic.parentFolder)
+                    parentFolderTopic = parentFolderTopic.parentFolder
                 else:
                     break
         else:
@@ -1226,19 +1356,10 @@ def moveTopic(request):
         else:
             return redirect("home")
 
-def visitLink(request):
-    if request.method=='GET':
-        link = request.GET["link"]
-
-        request.session["successMessage"] = "link visited successfully"
-        request.session["failMessage"] = ""
-        return redirect(link)
-
 def duplicateResearch(request, topicId):
     if request.method=='POST':
         reason = request.POST["reason"]
-        researchTopic = Topic.objects.get(id = topicId)
-        originalResearchWork = ResearchWork.objects.get(topic = researchTopic)
+        originalResearchWork = ResearchWork.objects.get(id = topicId)
         summaryDuplicateId = request.POST.get("duplicateId",False)
         researchWorkDuplicateId = request.POST.get("researchWorkDuplicateId",False)
 
@@ -1273,8 +1394,7 @@ def duplicateResearch(request, topicId):
 def duplicateSummary(request, topicId):
     if request.method=='POST':
         reason = request.POST["reason"]
-        researchTopic = Topic.objects.get(id = topicId)
-        researchWork = ResearchWork.objects.get(topic = researchTopic)
+        researchWork = ResearchWork.objects.get(id = topicId)
         originalResearchSummary = ResearchSummary.objects.get(researchWork = researchWork)
         
         summaryDuplicateId = request.POST.get("duplicateId",False)
@@ -1424,24 +1544,23 @@ def researchWorkDuplicate(request, duplicateId):
     else:
         summaryDuplicate = False
 
-    topicId = researchDuplicate.originalResearchWork.topic.id
+    topicId = researchDuplicate.originalResearchWork.id
 
-    topic = Topic.objects.get(id=topicId)
-    the_topic = topic
-    researchWork = ResearchWork.objects.get(topic = topic)
+    researchWork = ResearchWork.objects.get(id=topicId)
+    the_topic = researchWork
     path = []
     while True:
-        if topic.parentFolder:
-            path.append(topic.parentFolder.topic)
-            topic = topic.parentFolder.topic
+        if researchWork.parentFolder:
+            path.append(researchWork.parentFolder)
+            researchWork = researchWork.parentFolder
         else:
             break
     path.reverse()
-
+    researchWork = the_topic
     links = Link.objects.filter(researchWorkDuplicate = researchDuplicate)
     
     try:
-        originalResearchSummary = researchWork.researchSummary
+        originalResearchSummary = the_topic.researchSummary
         summaries = ResearchSummaryDuplicate.objects.filter(originalResearchSummary = originalResearchSummary)
     except ObjectDoesNotExist:
         summaries = []
@@ -1467,19 +1586,19 @@ def researchSummaryDuplicate(request, duplicateId):
     else:
         researchWorkDuplicate = False
 
-    topicId = summaryDuplicate.originalResearchSummary.researchWork.topic.id
+    topicId = summaryDuplicate.originalResearchSummary.researchWork.id
 
-    topic = Topic.objects.get(id=topicId)
-    the_topic = topic
-    researchWork = ResearchWork.objects.get(topic = topic)
+    researchWork = ResearchWork.objects.get(id=topicId)
+    the_topic = researchWork
     path = []
     while True:
-        if topic.parentFolder:
-            path.append(topic.parentFolder.topic)
-            topic = topic.parentFolder.topic
+        if researchWork.parentFolder:
+            path.append(researchWork.parentFolder)
+            researchWork = researchWork.parentFolder
         else:
             break
     path.reverse()
+    researchWork = the_topic
 
     links = Link.objects.filter(researchWork = researchWork)
     researches = ResearchWorkDuplicate.objects.filter(originalResearchWork = researchWork)
